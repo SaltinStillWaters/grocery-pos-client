@@ -8,21 +8,38 @@
       />
       <span class="text-subtitle-1 font-weight-bold">Inventory</span>
       <v-spacer />
-      <v-btn
-        color="amber-darken-2"
-        variant="flat"
-        prepend-icon="mdi-plus"
-        size="small"
-      >
-        Add Product
-      </v-btn>
+      <div class="d-flex ga-2">
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          size="small"
+        >
+          Add Product
+        </v-btn>
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-package-up"
+          size="small"
+        >
+          Restock
+        </v-btn>
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-pencil"
+          size="small"
+        >
+          Adjust
+        </v-btn>
+      </div>
     </v-card-title>
 
     <v-divider />
 
     <v-card-text class="bg-grey-lighten-5 pt-4">
-      <v-row dense align="center"> 
-        
+      <v-row dense align="center">
         <v-col cols="12" md="3">
           <v-text-field
             v-model="searchEAN"
@@ -55,7 +72,9 @@
         </v-col>
 
         <v-col cols="12" md="1" class="text-center">
-          <span class="text-caption font-weight-bold text-grey-darken-1">OR</span>
+          <span class="text-caption font-weight-bold text-grey-darken-1"
+            >OR</span
+          >
         </v-col>
 
         <v-col cols="12" md="3">
@@ -132,16 +151,16 @@ const headers = ref([
 
 const serverItems = ref([]);
 
-async function fetchInventory({ page=1, itemsPerPage }) {
+async function fetchInventory({ page = 1, itemsPerPage }) {
   loading.value = true;
   const result = await api.get(`/inventories`, {
     params: {
-      page, 
+      page,
       limit: itemsPerPage ?? limit.value,
       name: searchName.value,
       EAN: searchEAN.value,
-      maxStock: searchStock.value
-    }
+      maxStock: searchStock.value,
+    },
   });
 
   serverItems.value = result.data.data.data.map((inventory) => {
@@ -154,7 +173,7 @@ async function fetchInventory({ page=1, itemsPerPage }) {
   });
 
   totalItems.value = result.data.data.totalItems;
-  console.log(totalItems.value)
+  console.log(totalItems.value);
   loading.value = false;
 }
 </script>
