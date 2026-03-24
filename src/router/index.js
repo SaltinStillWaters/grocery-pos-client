@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
+import { Color, useUIStore } from '@/stores/ui'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -79,6 +80,9 @@ router.beforeEach((to) => {
 
   // Not logged in, trying to access protected route → redirect to login
   if (requiresAuth && !isAuthenticated) {
+    const UIStore = useUIStore()
+    UIStore.queueMessage(Color.ERROR, 'Please log in to continue', 3000)
+    
     return { name: 'Login' }
   }
 
