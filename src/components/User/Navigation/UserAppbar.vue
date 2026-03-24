@@ -94,6 +94,5 @@ const initials  = computed(() =>
 const logout = async () => {
   await authStore.logout()
   console.log('logging out')
-  router.push({ name: 'Login' })
 }
 </script>

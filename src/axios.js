@@ -1,6 +1,6 @@
 import axios from 'axios'
 import constant from '@/constant'
-import router from '@/router'
+import { useAuthStore } from './stores/auth'
 
 const api = axios.create({
   baseURL: constant.apiv1,
@@ -83,20 +83,25 @@ api.interceptors.response.use(
         isRefreshing = false
 
         // Retry original request
+        isSessionDialogShown = false
+        
         return api(originalRequest)
 
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError)
 
-        processQueue(refreshError, null)
+        processQueue(refreshError)
         isRefreshing = false
 
-        const ui = useUIStore()
+        // const ui = useUIStore()
         if (!isSessionDialogShown) {
           isSessionDialogShown = true
-          ui.showSessionExpired(
-            'Your session has expired. Please login again.'
-          )
+          // ui.showSessionExpired(
+          //   'Your session has expired. Please login again.'
+          // )
+          console.log('REDIRECT')
+          const authStore = useAuthStore()
+          authStore.logout()
         }
 
         return Promise.reject(refreshError)
