@@ -80,9 +80,8 @@ router.beforeEach((to) => {
 
   // Not logged in, trying to access protected route → redirect to login
   if (requiresAuth && !isAuthenticated) {
-    const UIStore = useUIStore()
-    UIStore.queueMessage(Color.ERROR, 'Please log in to continue')
-    console.log('from router')
+    const uiStore = useUIStore()
+    uiStore.queueMessage(Color.ERROR, 'Please log in to continue')
     return { name: 'Login' }
   }
 
