@@ -6,16 +6,15 @@
     color="#0A303C"
     width="260"
   >
-    <!-- Logo area at top -->
     <v-list-item
       class="py-4"
-      :prepend-icon="rail ? undefined : 'mdi-home-city'"
+      :prepend-icon="rail ? undefined : 'mdi-store'"
     >
       <template v-if="rail" v-slot:prepend>
-        <v-icon color="amber-darken-2">mdi-home-city</v-icon>
+        <v-icon color="amber-darken-2">mdi-store</v-icon>
       </template>
       <v-list-item-title v-if="!rail" class="text-white font-weight-bold text-subtitle-1">
-        EstateVue
+        GroceryPOS
       </v-list-item-title>
     </v-list-item>
 
@@ -23,7 +22,6 @@
 
     <v-list nav density="comfortable">
 
-      <!-- Main -->
       <v-list-subheader v-if="!rail" class="text-uppercase text-caption font-weight-bold opacity-50 text-white">
         Main
       </v-list-subheader>
@@ -31,7 +29,6 @@
       <v-list-item
         prepend-icon="mdi-view-dashboard-outline"
         title="Dashboard"
-        to="/dashboard"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
@@ -40,21 +37,27 @@
       <v-list-item
         prepend-icon="mdi-chart-bar"
         title="Analytics"
-        to="/analytics"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
       />
 
       <v-divider v-if="!rail" class="my-3 opacity-20" />
-
-      <!-- Real Estate -->
+      
       <v-list-subheader v-if="!rail" class="text-uppercase text-caption font-weight-bold opacity-50 text-white">
-        Real Estate
+        Inventory Management
       </v-list-subheader>
 
       <v-list-item
-        prepend-icon="mdi-home-search-outline"
+        prepend-icon="mdi-format-list-bulleted"
+        title="Product List"
+        rounded="lg"
+        color="amber-darken-2"
+        base-color="white"
+      />
+      
+      <v-list-item
+        prepend-icon="mdi-package-variant-closed"
         title="Inventory"
         :to="{ name: 'Inventory' }"
         rounded="lg"
@@ -63,7 +66,7 @@
       />
 
       <v-list-item
-        prepend-icon="mdi-map-marker-multiple-outline"
+        prepend-icon="mdi-truck-delivery-outline"
         title="Restock History"
         rounded="lg"
         color="amber-darken-2"
@@ -71,16 +74,8 @@
       />
 
       <v-list-item
-        prepend-icon="mdi-account-tie-outline"
-        title="Clients"
-        rounded="lg"
-        color="amber-darken-2"
-        base-color="white"
-      />
-
-      <v-list-item
-        prepend-icon="mdi-calendar-check-outline"
-        title="Appointments"
+        prepend-icon="mdi-clipboard-edit-outline"
+        title="Adjustment History"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
@@ -88,7 +83,6 @@
 
       <v-divider v-if="!rail" class="my-3 opacity-20" />
 
-      <!-- Admin -->
       <v-list-subheader v-if="!rail" class="text-uppercase text-caption font-weight-bold opacity-50 text-white">
         Admin
       </v-list-subheader>
@@ -112,7 +106,7 @@
     </v-list>
 
     <!-- Collapse toggle pinned to bottom -->
-    <!-- <template v-slot:append>
+    <template v-slot:append>
       <v-divider class="opacity-20" />
       <v-list-item
         :prepend-icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
@@ -122,9 +116,9 @@
         class="opacity-60 my-1"
         @click="rail = !rail"
       />
-    </template> -->
+    </template>
 
-  </v-navigation-drawer>
+    </v-navigation-drawer>
 </template>
 
 <script setup>
