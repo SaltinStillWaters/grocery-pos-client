@@ -1,6 +1,7 @@
 import axios from 'axios'
 import constant from '@/constant'
 import { useAuthStore } from './stores/auth'
+import { Color, useUIStore } from './stores/ui'
 
 const api = axios.create({
   baseURL: constant.apiv1,
@@ -93,13 +94,10 @@ api.interceptors.response.use(
         processQueue(refreshError)
         isRefreshing = false
 
-        // const ui = useUIStore()
         if (!isSessionDialogShown) {
           isSessionDialogShown = true
-          // ui.showSessionExpired(
-          //   'Your session has expired. Please login again.'
-          // )
-          console.log('REDIRECT')
+          const uiStore = useUIStore()
+          uiStore.queueMessage(Color.ERROR, 'Please log in to continue')
           const authStore = useAuthStore()
           authStore.logout()
         }
