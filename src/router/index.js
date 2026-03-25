@@ -50,6 +50,11 @@ const routes = [
         name: 'RestockHistory',
         component: () => import('@/views/User/RestockHistory.vue'),
       },
+      {
+        path: 'adjustment-history',
+        name: 'AdjustHistory',
+        component: () => import('@/views/User/AdjustHistory.vue'),
+      },
     ],
   },
 ]

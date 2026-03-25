@@ -77,6 +77,7 @@
       <v-list-item
         prepend-icon="mdi-clipboard-edit-outline"
         title="Adjustment History"
+        :to="{ name: 'AdjustHistory' }"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
