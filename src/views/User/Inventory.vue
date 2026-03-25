@@ -39,7 +39,7 @@
     <v-divider />
 
     <v-card-text class="bg-grey-lighten-5 pt-4">
-      <v-row dense align="center">
+      <v-row  align="center">
         <v-col cols="12" md="3">
           <v-text-field
             v-model="searchEAN"

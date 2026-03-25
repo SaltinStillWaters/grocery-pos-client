@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="px-4 py-2 rounded-lg border" elevation="0">
-    <v-row align="center" dense>
+    <v-row align="center" >
 
       <v-col cols="12" md="7" lg="8" class="py-1">
         <v-text-field v-model="searchQuery" placeholder="Search for groceries (e.g., fresh milk)..."

@@ -24,7 +24,7 @@
     <v-card-text class="pa-0">
       
       <div class="px-5 py-4 bg-white">
-        <v-row dense>
+        <v-row >
           <v-col cols="12" sm="6" md="3">
             <div class="text-caption text-uppercase text-grey-darken-1 font-weight-bold mb-1">Description</div>
             <div class="text-body-1">{{ item.description || 'N/A' }}</div>
@@ -52,7 +52,7 @@
       <v-divider />
 
       <div class="px-4 pt-4 pb-2 bg-grey-lighten-5">
-        <v-row dense align="center">
+        <v-row  align="center">
           <v-col cols="12" md="3">
             <v-text-field
               v-model="searchEAN"

@@ -32,7 +32,7 @@
 
     <div class="mb-6">
       <div class="text-subtitle-2 mb-2 font-weight-bold">Price Range</div>
-      <v-row dense>
+      <v-row >
         <v-col cols="6">
           <v-text-field
             v-model.number="filters.minPrice"

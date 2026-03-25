@@ -21,7 +21,7 @@
         <!-- RIGHT: Form -->
         <v-col cols="12" md="6">
           <v-form ref="formRef" @submit.prevent="submitForm">
-            <v-row dense>
+            <v-row >
               <v-col cols="12" sm="6">
                 <v-text-field v-model="form.name" label="Name" variant="underlined" density="compact" />
               </v-col>
