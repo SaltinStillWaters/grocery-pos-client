@@ -2,21 +2,13 @@
   <v-card elevation="2" class="rounded-lg border">
     <v-card-title class="d-flex align-center px-4 py-3 bg-grey-lighten-4">
       <v-icon
-        icon="mdi-package-variant-closed"
+        icon="mdi-truck-delivery-outline"
         color="amber-darken-2"
         class="me-2"
       />
-      <span class="text-subtitle-1 font-weight-bold">Inventory</span>
+      <span class="text-subtitle-1 font-weight-bold">Restock History</span>
       <v-spacer />
       <div class="d-flex ga-2">
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
-          prepend-icon="mdi-plus"
-          size="small"
-        >
-          Add Product
-        </v-btn>
         <v-btn
           color="amber-darken-2"
           variant="flat"
@@ -24,14 +16,6 @@
           size="small"
         >
           Restock
-        </v-btn>
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
-          prepend-icon="mdi-pencil"
-          size="small"
-        >
-          Adjust
         </v-btn>
       </div>
     </v-card-title>
@@ -52,7 +36,7 @@
             clearable
             hide-details
             :disabled="!!searchStock"
-            @keyup.enter="fetchInventory"
+            @keyup.enter="fetchrestock"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -67,7 +51,7 @@
             clearable
             hide-details
             :disabled="!!searchStock"
-            @keyup.enter="fetchInventory"
+            @keyup.enter="fetchrestock"
           />
         </v-col>
 
@@ -90,7 +74,7 @@
             clearable
             hide-details
             :disabled="!!searchEAN || !!searchName"
-            @keyup.enter="fetchInventory"
+            @keyup.enter="fetchrestock"
           />
         </v-col>
 
@@ -100,7 +84,7 @@
             variant="flat"
             prepend-icon="mdi-magnify"
             block
-            @click="fetchInventory"
+            @click="fetchrestock"
           >
             Search
           </v-btn>
@@ -117,17 +101,24 @@
       :items-length="totalItems"
       :loading="loading"
       hover
-      @update:options="fetchInventory"
+      @update:options="fetchrestock"
+      @click:row="showDetails"
     >
       <template v-slot:loading>
         <v-skeleton-loader type="table-row@5" />
       </template>
     </v-data-table-server>
+
+    <v-dialog v-model="isDialogOpen">
+      <RestockDetails :item="selectedItem" @close="isDialogOpen = false">
+      </RestockDetails>
+    </v-dialog>
   </v-card>
 </template>
 
 <script setup>
 import api from "@/axios";
+import RestockDetails from "@/components/User/RestockDetails.vue";
 import { ref } from "vue";
 
 const loading = ref(true);
@@ -136,38 +127,56 @@ const totalItems = ref(0);
 const searchName = ref("");
 const searchEAN = ref("");
 const searchStock = ref();
+const isDialogOpen = ref(false)
+const selectedItem = ref()
 
 const headers = ref([
+  { title: "Description", key: "description", align: "start", sortable: false },
+  { title: "Total Cost", key: "totalCost", align: "start", sortable: false },
   {
-    title: "EAN",
+    title: "Restocked By",
+    key: "restockedBy",
     align: "start",
     sortable: false,
-    key: "EAN",
   },
-  { title: "Name", key: "name", align: "start", sortable: false },
-  { title: "Stock", key: "stock", align: "start", sortable: false },
+  { title: "Date", key: "date", align: "start", sortable: false },
 ]);
 
 const serverItems = ref([]);
 
-async function fetchInventory({ page = 1, itemsPerPage }) {
+async function showDetails(event, {item}) {
+  selectedItem.value = item
+  console.log('ITEM RAW')
+  console.log(item)
+  isDialogOpen.value = true
+}
+
+async function fetchrestock({ page = 1, itemsPerPage }) {
   loading.value = true;
-  const result = await api.get(`/inventories`, {
+  const result = await api.get(`/restocks`, {
     params: {
       page,
       limit: itemsPerPage ?? limit.value,
-      name: searchName.value,
-      EAN: searchEAN.value,
-      maxStock: searchStock.value,
+      // name: searchName.value,
+      // EAN: searchEAN.value,
+      // maxStock: searchStock.value,
     },
   });
 
-  serverItems.value = result.data.data.data.map((inventory) => {
+  serverItems.value = result.data.data.data.map((restock) => {
     return {
-      id: inventory.product._id,
-      EAN: inventory.product.EAN,
-      name: inventory.product.name,
-      stock: inventory.stock,
+      id: restock._id,
+      description: restock.description,
+      restockedBy: restock.restockedBy.name,
+      totalCost: restock.totalCost,
+      date: new Date(restock.createdAt).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
     };
   });
 

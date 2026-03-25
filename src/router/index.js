@@ -45,6 +45,11 @@ const routes = [
         name: 'Inventory',
         component: () => import('@/views/User/Inventory.vue'),
       },
+      {
+        path: 'restock-history',
+        name: 'RestockHistory',
+        component: () => import('@/views/User/RestockHistory.vue'),
+      },
     ],
   },
 ]

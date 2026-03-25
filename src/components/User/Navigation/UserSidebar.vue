@@ -69,6 +69,7 @@
         prepend-icon="mdi-truck-delivery-outline"
         title="Restock History"
         rounded="lg"
+        :to="{ name: 'RestockHistory' }"
         color="amber-darken-2"
         base-color="white"
       />
@@ -122,7 +123,6 @@
 </template>
 
 <script setup>
-import Inventory from '@/views/User/Inventory.vue'
 import { ref, computed } from 'vue'
 
 const props = defineProps({
