@@ -23,7 +23,7 @@
     <v-divider />
 
     <v-card-text class="bg-grey-lighten-5 pt-4">
-      <v-row dense align="center">
+      <v-row align="center">
         <v-col cols="12" md="3">
           <v-select
             v-model="searchRestockedBy"
@@ -36,6 +36,7 @@
             color="amber-darken-2"
             clearable
             hide-details
+            @update:model-value="resetSearch"
           />
         </v-col>
 
@@ -44,7 +45,7 @@
             <template v-slot:activator="{ props }">
               <v-text-field
                 v-bind="props"
-                v-model="dateRangeText"
+                :model-value="dateRangeText"
                 label="Date Range"
                 prepend-inner-icon="mdi-calendar"
                 variant="outlined"
@@ -54,29 +55,34 @@
                 hide-details
                 color="amber-darken-2"
                 clearable
-                @click:clear="dateRange = []"
+                @click:clear="
+                  () => {
+                    searchDateRange = [];
+                    resetSearch();
+                  }
+                "
               />
             </template>
             <v-date-picker
-              v-model="dateRange"
+              v-model="searchDateRange"
               multiple="range"
               color="amber-darken-2"
-              @update:model-value="onDateChange"
+              @update:model-value="resetSearch"
               hide-header
               :max="new Date()"
-              />
+            />
           </v-menu>
         </v-col>
         <v-spacer />
         <v-col cols="12" md="2">
           <v-btn
-            color="amber-darken-2"
-            variant="flat"
-            prepend-icon="mdi-magnify"
+            color="grey-darken-2"
+            variant="tonal"
+            prepend-icon="mdi-filter-remove-outline"
             block
-            @click="fetchRestock"
+            @click="resetFilters"
           >
-            Search
+            Clear Filters
           </v-btn>
         </v-col>
       </v-row>
@@ -86,6 +92,7 @@
 
     <v-data-table-server
       v-model:items-per-page="limit"
+      v-model:page="page"
       :headers="headers"
       :items="serverItems"
       :items-length="totalItems"
@@ -111,96 +118,81 @@ import api from "@/axios";
 import RestockDetails from "@/components/User/RestockDetails.vue";
 import { computed, onMounted, ref } from "vue";
 
+// Table
 const loading = ref(true);
 const limit = ref(5);
 const totalItems = ref(0);
-const searchDescription = ref('')
-const searchRestockedBy = ref('')
-const dateRange = ref([])
-const dateMenu = ref(false)
-const isDialogOpen = ref(false);
-const selectedItem = ref();
-
-const userOptions = ref([])
-
-const fetchUserOptions = async () => {
-  const result = await api.get('/restocks/users')
-  const names = []
-
-  result.data.data.forEach(({_id, name}) => {
-    names.push(name)
-    userMap.value[name] = _id  
-  })
-
-  userOptions.value = names
-
-  console.log(names, userMap)
-}
-
-onMounted(() => {
-  fetchUserOptions()
-})
-
-const userMap = ref({})
-
-const dateRangeText = computed(() => {
-  if (!dateRange.value || dateRange.value.length === 0) return ''
-  
-  const formatDate = (date) => new Date(date).toLocaleDateString('en-PH') // Adjust locale as needed
-  
-  if (dateRange.value.length === 1) {
-    return formatDate(dateRange.value[0])
-  }
-  
-  const start = formatDate(dateRange.value[0])
-  const end = formatDate(dateRange.value[dateRange.value.length - 1])
-  return `${start} - ${end}`
-})
-
-// Closes the menu automatically once a range is selected
-const onDateChange = (val) => {
-  if (val.length > 1) {
-    fetchRestock() // Auto-fetch when range is complete (optional)
-  }
-}
-
-const headers = ref([
+const page = ref(1);
+const serverItems = ref([]);
+const headers = [
   { title: "Description", key: "description", align: "start", sortable: false },
   { title: "Total Cost", key: "totalCost", align: "start", sortable: false },
-  {
-    title: "Restocked By",
-    key: "restockedBy",
-    align: "start",
-    sortable: false,
-  },
+  { title: "Restocked By", key: "restockedBy", align: "start", sortable: false, },
   { title: "Date", key: "date", align: "start", sortable: false },
-]);
+];
 
-const serverItems = ref([]);
+// Components
+const searchRestockedBy = ref();
+const searchDateRange = ref([]);
+const dateMenu = ref(false);
+const userOptions = ref([]);
 
-async function showDetails(event, { item }) {
-  selectedItem.value = item;
-  console.log("ITEM RAW");
-  console.log(item);
-  isDialogOpen.value = true;
+const fetchUserOptions = async () => {
+  const result = await api.get("/restocks/users");
+
+  userOptions.value = result.data.data.map(({ _id, name }) => ({
+    title: name,
+    value: _id,
+  }));
+};
+
+onMounted(() => {
+  fetchUserOptions();
+});
+
+const dateRangeText = computed(() => {
+  if (!searchDateRange.value || searchDateRange.value.length === 0) return "";
+
+  const formatDate = (date) => new Date(date).toLocaleDateString("en-PH");
+
+  if (searchDateRange.value.length === 1) {
+    return formatDate(searchDateRange.value[0]);
+  }
+
+  const start = formatDate(searchDateRange.value[0]);
+  const end = formatDate(
+    searchDateRange.value[searchDateRange.value.length - 1],
+  );
+  return `${start} - ${end}`;
+});
+
+const resetSearch = () => {
+  page.value = 1;
+  fetchRestock();
+};
+
+const resetFilters = () => {
+  searchRestockedBy.value = null
+  searchDateRange.value = null
+  resetSearch();
 }
 
-async function fetchRestock({ page = 1, itemsPerPage }) {
+async function fetchRestock() {
   loading.value = true;
-  const formattedDates = dateRange.value && dateRange.value.length
-    ? dateRange.value.map(date => new Date(date).toISOString())
-    : undefined;
+  const formattedDates =
+    searchDateRange.value && searchDateRange.value.length
+      ? searchDateRange.value.map((date) => new Date(date).toISOString())
+      : undefined;
 
   const result = await api.get(`/restocks`, {
     params: {
-      page,
-      limit: itemsPerPage ?? limit.value,
-      restockedBy: userMap.value[searchRestockedBy.value] ?? null,
-      dateRange: formattedDates
+      page: page.value,
+      limit: limit.value,
+      restockedBy: searchRestockedBy.value,
+      dateRange: formattedDates,
     },
-    paramsSerializer: { indexes: null }
+    paramsSerializer: { indexes: null },
   });
-  console.log(dateRange)
 
   serverItems.value = result.data.data.data.map((restock) => {
     return {
@@ -220,7 +212,15 @@ async function fetchRestock({ page = 1, itemsPerPage }) {
   });
 
   totalItems.value = result.data.data.totalItems;
-  console.log(totalItems.value, {result});
   loading.value = false;
+}
+
+// Dialogue Box
+const isDialogOpen = ref(false);
+const selectedItem = ref();
+
+async function showDetails(event, { item }) {
+  selectedItem.value = item;
+  isDialogOpen.value = true;
 }
 </script>
