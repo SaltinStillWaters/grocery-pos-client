@@ -39,7 +39,7 @@
     <v-divider />
 
     <v-card-text class="bg-grey-lighten-5 pt-4">
-      <v-row  align="center">
+      <v-row align="center">
         <v-col cols="12" md="3">
           <v-text-field
             v-model="searchEAN"
@@ -48,11 +48,16 @@
             variant="outlined"
             density="compact"
             bg-color="white"
+            hide-details
             color="amber-darken-2"
             clearable
-            hide-details
-            :disabled="!!searchStock"
-            @keyup.enter="fetchInventory"
+            @click:clear="
+              () => {
+                searchEAN = '';
+                fetchInventory();
+              }
+            "
+            @keyup.enter="resetSearch"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -63,46 +68,29 @@
             variant="outlined"
             density="compact"
             bg-color="white"
+            hide-details
             color="amber-darken-2"
             clearable
-            hide-details
-            :disabled="!!searchStock"
-            @keyup.enter="fetchInventory"
+            @click:clear="
+              () => {
+                searchName = '';
+                fetchInventory();
+              }
+            "
+            @keyup.enter="resetSearch"
           />
         </v-col>
-
-        <v-col cols="12" md="1" class="text-center">
-          <span class="text-caption font-weight-bold text-grey-darken-1"
-            >OR</span
-          >
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-text-field
-            v-model="searchStock"
-            label="Max Stock Level"
-            prepend-inner-icon="mdi-package-down"
-            variant="outlined"
-            density="compact"
-            bg-color="white"
-            color="amber-darken-2"
-            type="number"
-            clearable
-            hide-details
-            :disabled="!!searchEAN || !!searchName"
-            @keyup.enter="fetchInventory"
-          />
-        </v-col>
+        <v-spacer />
 
         <v-col cols="12" md="2">
           <v-btn
-            color="amber-darken-2"
-            variant="flat"
-            prepend-icon="mdi-magnify"
+            color="grey-darken-2"
+            variant="tonal"
+            prepend-icon="mdi-filter-remove-outline"
             block
-            @click="fetchInventory"
+            @click="resetFilters"
           >
-            Search
+            Clear Filters
           </v-btn>
         </v-col>
       </v-row>
@@ -112,6 +100,7 @@
 
     <v-data-table-server
       v-model:items-per-page="limit"
+      v-model:page="page"
       :headers="headers"
       :items="serverItems"
       :items-length="totalItems"
@@ -132,31 +121,38 @@ import { ref } from "vue";
 
 const loading = ref(true);
 const limit = ref(5);
+const page = ref(1);
 const totalItems = ref(0);
 const searchName = ref("");
 const searchEAN = ref("");
 const searchStock = ref();
 
 const headers = ref([
-  {
-    title: "EAN",
-    align: "start",
-    sortable: false,
-    key: "EAN",
-  },
+  { title: "EAN", align: "start", sortable: false, key: "EAN" },
   { title: "Name", key: "name", align: "start", sortable: false },
   { title: "Stock", key: "stock", align: "start", sortable: false },
 ]);
 
 const serverItems = ref([]);
 
-async function fetchInventory({ page = 1, itemsPerPage }) {
+const resetSearch = () => {
+  page.value = 1;
+  fetchInventory();
+};
+
+const resetFilters = () => {
+  searchEAN.value = "";
+  searchName.value = "";
+  resetSearch();
+};
+
+async function fetchInventory() {
   loading.value = true;
   const result = await api.get(`/inventories`, {
     params: {
-      page,
-      limit: itemsPerPage ?? limit.value,
-      name: searchName.value,
+      page: page.value,
+      limit: limit.value,
+      name: searchName.value?.toUpperCase(),
       EAN: searchEAN.value,
       maxStock: searchStock.value,
     },
@@ -172,7 +168,6 @@ async function fetchInventory({ page = 1, itemsPerPage }) {
   });
 
   totalItems.value = result.data.data.totalItems;
-  console.log(totalItems.value);
   loading.value = false;
 }
 </script>
