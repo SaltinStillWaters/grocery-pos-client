@@ -6,7 +6,7 @@
         color="amber-darken-2"
         class="me-2"
       />
-      <span class="text-subtitle-1 font-weight-bold">Restock History</span>
+      <span class="text-subtitle-1 font-weight-bold">Adjustment History</span>
       <v-spacer />
       <div class="d-flex ga-2">
         <v-btn
@@ -15,7 +15,7 @@
           prepend-icon="mdi-package-up"
           size="small"
         >
-          Restock
+          Adjust
         </v-btn>
       </div>
     </v-card-title>
@@ -28,7 +28,7 @@
           <v-select
             v-model="searchAdjustedBy"
             :items="userOptions"
-            label="Restocked By"
+            label="Adjusted By"
             prepend-inner-icon="mdi-account"
             variant="outlined"
             density="compact"
@@ -107,15 +107,15 @@
     </v-data-table-server>
 
     <v-dialog v-model="isDialogOpen">
-      <RestockDetails :item="selectedItem" @close="isDialogOpen = false">
-      </RestockDetails>
+      <AdjustDetails :item="selectedItem" @close="isDialogOpen = false">
+      </AdjustDetails>
     </v-dialog>
   </v-card>
 </template>
 
 <script setup>
 import api from "@/axios";
-import RestockDetails from "@/components/User/RestockDetails.vue";
+import AdjustDetails from "@/components/User/AdjustDetails.vue";
 import { computed, onMounted, ref } from "vue";
 
 // Table
@@ -126,7 +126,7 @@ const page = ref(1);
 const serverItems = ref([]);
 const headers = [
   { title: "Description", key: "description", align: "start", sortable: false },
-  { title: "Restocked By", key: "adjustedBy", align: "start", sortable: false, },
+  { title: "Adjusted By", key: "adjustedBy", align: "start", sortable: false, },
   { title: "Date", key: "date", align: "start", sortable: false },
 ];
 
@@ -193,12 +193,12 @@ async function fetchAdjust() {
     paramsSerializer: { indexes: null },
   });
 
-  serverItems.value = result.data.data.data.map((restock) => {
+  serverItems.value = result.data.data.data.map((adjust) => {
     return {
-      id: restock._id,
-      description: restock.description,
-      adjustedBy: restock.adjustedBy.name,
-      date: new Date(restock.createdAt).toLocaleString("en-PH", {
+      id: adjust._id,
+      description: adjust.description,
+      adjustedBy: adjust.adjustedBy.name,
+      date: new Date(adjust.createdAt).toLocaleString("en-PH", {
         year: "numeric",
         month: "short",
         day: "numeric",

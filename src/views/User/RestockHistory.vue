@@ -173,7 +173,7 @@ const resetSearch = () => {
 
 const resetFilters = () => {
   searchRestockedBy.value = null
-  searchDateRange.value = null
+  searchDateRange.value = []
   resetSearch();
 }
 

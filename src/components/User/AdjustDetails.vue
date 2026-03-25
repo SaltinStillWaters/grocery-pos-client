@@ -8,7 +8,7 @@
         color="amber-darken-2"
         class="me-2"
       />
-      <span class="text-subtitle-1 font-weight-bold">Restock Details</span>
+      <span class="text-subtitle-1 font-weight-bold">Adjustment Details</span>
 
       <v-spacer />
 
@@ -26,7 +26,7 @@
     <v-card-text class="pa-0">
       <div class="px-5 py-4 bg-white">
         <v-row>
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="6" md="4">
             <div
               class="text-caption text-uppercase text-grey-darken-1 font-weight-bold mb-1"
             >
@@ -35,35 +35,24 @@
             <div class="text-body-1">{{ item.description || "N/A" }}</div>
           </v-col>
 
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="6" md="4">
             <div
               class="text-caption text-uppercase text-grey-darken-1 font-weight-bold mb-1"
             >
-              Restocked By
+              Adjusted By
             </div>
             <div class="text-body-1 text-capitalize">
-              {{ item.restockedBy || "Unknown" }}
+              {{ item.adjustedBy || "Unknown" }}
             </div>
           </v-col>
 
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="6" md="4">
             <div
               class="text-caption text-uppercase text-grey-darken-1 font-weight-bold mb-1"
             >
               Date
             </div>
             <div class="text-body-1">{{ item.date || "--" }}</div>
-          </v-col>
-
-          <v-col cols="12" sm="6" md="3">
-            <div
-              class="text-caption text-uppercase text-grey-darken-1 font-weight-bold mb-1"
-            >
-              Grand Total
-            </div>
-            <div class="text-body-1 font-weight-bold text-amber-darken-3">
-              {{ item.totalCost }}
-            </div>
           </v-col>
         </v-row>
       </div>
@@ -83,6 +72,10 @@
               hide-details
               color="amber-darken-2"
               clearable
+              @click:clear="() => {
+                searchEAN=''
+                fetchDetails()
+              }"
               @keyup.enter="resetSearch"
             />
           </v-col>
@@ -97,6 +90,10 @@
               hide-details
               color="amber-darken-2"
               clearable
+              @click:clear="() => {
+                searchName=''
+                fetchDetails()
+              }"
               @keyup.enter="resetSearch"
             />
           </v-col>
@@ -144,8 +141,7 @@ const props = defineProps<{
   item: {
     id: string;
     description: string;
-    restockedBy: string;
-    totalCost: number;
+    adjustedBy: string;
     date: Date;
   };
 }>();
@@ -159,24 +155,8 @@ const searchEAN = ref("");
 
 const headers = ref([
   { title: "Name", key: "name", align: "start" as const, sortable: false },
-  {
-    title: "Quantity",
-    key: "quantity",
-    align: "start" as const,
-    sortable: false,
-  },
-  {
-    title: "Unit Cost",
-    key: "unitCost",
-    align: "start" as const,
-    sortable: false,
-  },
-  {
-    title: "totalCost",
-    key: "totalCost",
-    align: "start" as const,
-    sortable: false,
-  },
+  { title: "Change", key: "change", align: "start" as const, sortable: false, },
+  { title: "Reason", key: "reason", align: "start" as const, sortable: false, },
 ]);
 
 const serverItems = ref([]);
@@ -187,14 +167,14 @@ const resetSearch = () => {
 };
 
 const resetFilters = () => {
-  searchEAN.value = null;
-  searchName.value = null;
+  searchEAN.value = "";
+  searchName.value = "";
   resetSearch();
 };
 
 async function fetchDetails() {
   loading.value = true;
-  const result = await api.get(`/restocks/details/${props.item.id}`, {
+  const result = await api.get(`/adjustments/details/${props.item.id}`, {
     params: {
       page: page.value,
       limit: limit.value,
@@ -208,9 +188,8 @@ async function fetchDetails() {
     return {
       id: details.id,
       name: details.product?.name,
-      quantity: details.quantity,
-      unitCost: details.unitCost,
-      totalCost: details.unitCost * details.quantity,
+      change: details.change,
+      reason: details.reason,
     };
   });
 
