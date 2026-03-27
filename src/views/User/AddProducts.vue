@@ -110,7 +110,7 @@
   </v-card>
 
   <v-dialog v-model="isAddDialogOpen" max-width="500" destroy-on-close>
-    <add-product 
+    <add-product-dialog 
       @close="isAddDialogOpen = false" 
       @add="handleNewProduct" 
       @update="updateDraft" 
@@ -122,7 +122,7 @@
 
 <script setup>
 import api from "@/axios";
-import AddProduct from "@/components/User/AddProduct.vue";
+import AddProductDialog from "@/components/User/AddProductDialog.vue";
 import { useAuthStore } from "@/stores/auth";
 import { ref } from "vue";
 
