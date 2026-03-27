@@ -1,84 +1,172 @@
 <template>
-  <v-container fluid>
-    <Search />
-    
-    <v-row class="mt-4">
-      <v-col cols="12" lg="3">
-        <Filter />
-      </v-col>
-      
-      <v-col cols="12" lg="9">
-        <v-row>
-          <v-col 
-            v-for="item in products" 
-            :key="item.id" 
-            cols="12" sm="6" md="4"
+  <v-card elevation="2" class="rounded-lg border">
+    <v-card-title class="d-flex align-center px-4 py-3 bg-grey-lighten-4">
+      <v-icon
+        icon="mdi-package-variant-closed"
+        color="amber-darken-2"
+        class="me-2"
+      />
+      <span class="text-subtitle-1 font-weight-bold">Product List</span>
+      <v-spacer />
+      <div class="d-flex ga-2">
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          :to="{name: 'Products/Add'}"
+          size="small"
+        >
+          Add Product
+        </v-btn>
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-package-up"
+          size="small"
+        >
+          Restock
+        </v-btn>
+        <v-btn
+          color="amber-darken-2"
+          variant="flat"
+          prepend-icon="mdi-pencil"
+          size="small"
+        >
+          Adjust
+        </v-btn>
+      </div>
+    </v-card-title>
+
+    <v-divider />
+
+    <v-card-text class="bg-grey-lighten-5 pt-4">
+      <v-row align="center">
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="searchEAN"
+            label="EAN / Barcode"
+            prepend-inner-icon="mdi-barcode-scan"
+            variant="outlined"
+            density="compact"
+            bg-color="white"
+            hide-details
+            color="amber-darken-2"
+            clearable
+            @click:clear="
+              () => {
+                searchEAN = '';
+                fetchProducts();
+              }
+            "
+            @keyup.enter="resetSearch"
+          />
+        </v-col>
+        <v-col cols="12" md="3">
+          <v-text-field
+            v-model="searchName"
+            label="Product Name"
+            prepend-inner-icon="mdi-magnify"
+            variant="outlined"
+            density="compact"
+            bg-color="white"
+            hide-details
+            color="amber-darken-2"
+            clearable
+            @click:clear="
+              () => {
+                searchName = '';
+                fetchProducts();
+              }
+            "
+            @keyup.enter="resetSearch"
+          />
+        </v-col>
+        <v-spacer />
+
+        <v-col cols="12" md="2">
+          <v-btn
+            color="grey-darken-2"
+            variant="tonal"
+            prepend-icon="mdi-filter-remove-outline"
+            block
+            @click="resetFilters"
           >
-            <ProductCard 
-              :product="item" 
-              @add-to-cart="handleAddToCart" 
-            />
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-container>
+            Clear Filters
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card-text>
+
+    <v-divider />
+
+    <v-data-table-server
+      v-model:items-per-page="limit"
+      v-model:page="page"
+      :headers="headers"
+      :items="serverItems"
+      :items-length="totalItems"
+      :loading="loading"
+      hover
+      @update:options="fetchProducts"
+    >
+      <template v-slot:loading>
+        <v-skeleton-loader type="table-row@5" />
+      </template>
+    </v-data-table-server>
+  </v-card>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Filter from '@/components/Filter.vue';
-import ProductCard from '@/components/ProductCard.vue';
-import Search from '@/components/Search.vue';
+import api from "@/axios";
+import { ref } from "vue";
 
-// --- Mock Data ---
-// In a real app, you would fetch this from your backend API
-const products = ref([
-  {
-    id: 1,
-    name: 'Organic Honeycrisp Apples',
-    brand: 'Fresh Farms',
-    price: 4.99,
-    unitPriceString: '$1.25 / lb',
-    image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6fc6c?w=300',
-    tag: 'Organic',
-    tagColor: 'success'
-  },
-  {
-    id: 2,
-    name: 'Almond Milk Unsweetened',
-    brand: 'Blue Diamond',
-    price: 3.49,
-    originalPrice: 4.49, // Will show crossed out
-    unitPriceString: '$0.05 / fl oz',
-    image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300',
-    tag: 'Sale',
-    tagColor: 'error'
-  },
-  {
-    id: 3,
-    name: 'Whole Wheat Bread',
-    brand: 'Nature\'s Own',
-    price: 2.99,
-    unitPriceString: '$0.15 / oz',
-    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300'
-  },
-  {
-    id: 4,
-    name: 'Free Range Large Brown Eggs - 12ct',
-    brand: 'Happy Hens',
-    price: 5.99,
-    unitPriceString: '$0.50 / ea',
-    image: 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=300',
-    tag: 'Local',
-    tagColor: 'info'
-  }
+const loading = ref(true);
+const limit = ref(5);
+const page = ref(1);
+const totalItems = ref(0);
+const searchName = ref("");
+const searchEAN = ref("");
+
+const headers = ref([
+  { title: "EAN", align: "start", sortable: false, key: "EAN" },
+  { title: "Name", key: "name", align: "start", sortable: false },
+  { title: "Price", key: "price", align: "start", sortable: false },
 ]);
 
-// --- Methods ---
-const handleAddToCart = (product) => {
-  // This receives the exact product the user clicked on!
-  console.log(`Added ${product.name} to cart!`);
-  // Next step: push this product to your Pinia cart store
+const serverItems = ref([]);
+
+const resetSearch = () => {
+  page.value = 1;
+  fetchProducts();
 };
+
+const resetFilters = () => {
+  searchEAN.value = "";
+  searchName.value = "";
+  resetSearch();
+};
+
+async function fetchProducts() {
+  loading.value = true;
+  const result = await api.get(`/products`, {
+    params: {
+      page: page.value,
+      limit: limit.value,
+      name: searchName.value?.toUpperCase(),
+      EAN: searchEAN.value,
+    },
+  });
+
+  serverItems.value = result.data.data.data.map((product) => {
+    return {
+      id: product._id,
+      EAN: product.EAN,
+      name: product.name,
+      price: product.price,
+    };
+  });
+
+  totalItems.value = result.data.data.totalItems;
+  loading.value = false;
+}
 </script>

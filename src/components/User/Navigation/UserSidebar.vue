@@ -51,6 +51,7 @@
       <v-list-item
         prepend-icon="mdi-format-list-bulleted"
         title="Product List"
+        :to="{ name: 'Products' }"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
