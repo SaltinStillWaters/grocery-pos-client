@@ -122,7 +122,7 @@
 
 <script setup>
 import api from "@/axios";
-import RestockDialog from "@/components/User/RestockDialog.vue";
+import RestockDialog from "@/components/User/Restock/AddDialog.vue";
 import { useAuthStore } from "@/stores/auth";
 import { ref } from "vue";
 

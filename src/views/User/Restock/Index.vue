@@ -14,6 +14,9 @@
           variant="flat"
           prepend-icon="mdi-package-up"
           size="small"
+          :to="{
+            name: 'Restocks/Add'
+          }"
         >
           Restock
         </v-btn>
@@ -115,7 +118,7 @@
 
 <script setup>
 import api from "@/axios";
-import RestockDetails from "@/components/User/Restock/RestockDetails.vue";
+import RestockDetails from "@/components/User/Restock/DetailsDialog.vue";
 import { computed, onMounted, ref } from "vue";
 
 // Table

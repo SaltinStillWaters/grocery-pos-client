@@ -38,6 +38,7 @@
               variant="outlined"
               density="comfortable"
               color="amber-darken-2"
+              hide-details="auto"
               :rules="eanRules"
               :disabled="formData.autoGenerateEAN"
               :placeholder="
@@ -51,8 +52,7 @@
               label="Auto-generate EAN"
               color="amber-darken-2"
               density="compact"
-              hide-details
-              class="mt-n2 mb-2"
+              hide-details="auto"
               @update:model-value="handleAutoGenerateToggle"
             />
           </v-col>
@@ -64,6 +64,7 @@
               prepend-inner-icon="mdi-format-text"
               variant="outlined"
               density="comfortable"
+              hide-details="auto"
               color="amber-darken-2"
               :rules="[rules.required]"
             />
@@ -76,6 +77,7 @@
               prepend-inner-icon="mdi-currency-php"
               variant="outlined"
               density="comfortable"
+              hide-details="auto"
               color="amber-darken-2"
               type="number"
               min="0"
