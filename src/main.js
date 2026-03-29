@@ -15,7 +15,16 @@ import { createPinia } from 'pinia';
 
 // Components
 import App from './App.vue'
+import { Color, useUIStore } from './stores/ui';
 
+// window.addEventListener('unhandledrejection', (event) => {
+//     const error = event.reason
+//     console.warn('Unhandled error:', error)
+
+//     const uiStore = useUIStore()
+
+//     uiStore.queueMessage(Color.ERROR, '')
+// })
 
 const app = createApp(App)
 app.use(createPinia());

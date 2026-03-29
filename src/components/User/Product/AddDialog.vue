@@ -1,13 +1,15 @@
 <template>
   <v-card elevation="0" class="rounded-lg">
-    <v-card-title class="d-flex align-center px-4 py-3 bg-amber-lighten-5 border-bottom">
+    <v-card-title
+      class="d-flex align-center px-4 py-3 bg-amber-lighten-5 border-bottom"
+    >
       <v-icon
         icon="mdi-package-variant-plus"
         color="amber-darken-2"
         class="me-2"
       />
       <span class="text-subtitle-1 font-weight-bold text-amber-darken-4">
-        {{ isEditMode ? 'Edit Product Draft' : 'Add New Product' }}
+        {{ isEditMode ? "Edit Product Draft" : "Add New Product" }}
       </span>
       <v-spacer />
       <v-btn
@@ -22,7 +24,11 @@
     <v-divider />
 
     <v-card-text class="pa-5">
-      <v-form ref="formRef" v-model="isFormValid" @submit.prevent="submitProduct">
+      <v-form
+        ref="formRef"
+        v-model="isFormValid"
+        @submit.prevent="submitProduct"
+      >
         <v-row>
           <v-col cols="12" class="pb-0">
             <v-text-field
@@ -34,7 +40,11 @@
               color="amber-darken-2"
               :rules="eanRules"
               :disabled="formData.autoGenerateEAN"
-              :placeholder="formData.autoGenerateEAN ? 'System will generate EAN automatically' : 'Scan or type barcode'"
+              :placeholder="
+                formData.autoGenerateEAN
+                  ? 'System will generate EAN automatically'
+                  : 'Scan or type barcode'
+              "
             />
             <v-checkbox
               v-model="formData.autoGenerateEAN"
@@ -72,7 +82,6 @@
               :rules="[rules.required, rules.minZero]"
             />
           </v-col>
-
         </v-row>
       </v-form>
     </v-card-text>
@@ -97,31 +106,31 @@
         :disabled="!isFormValid"
         @click="submitProduct"
       >
-        {{ isEditMode ? 'Update Draft' : 'Add to Draft' }}
+        {{ isEditMode ? "Update Draft" : "Add to Draft" }}
       </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import api from "@/axios";
+import { Color, useUIStore } from "@/stores/ui";
 import { ref, reactive, computed, onMounted } from "vue";
 
-// Added 'update' to emits so parent knows when an edit happens vs an add
 const emit = defineEmits(["close", "add", "update"]);
 
-// Make props.item optional so the same component works for ADDING and EDITING
 const props = defineProps<{
   item: {
-    EAN?: string,
-    autoGenerateEAN?: boolean
-    price?: number,
-    name?: string
-  }
+    EAN?: string;
+    autoGenerateEAN?: boolean;
+    price?: number;
+    name?: string;
+  };
 }>();
 
 const formRef = ref<any>(null);
 const isFormValid = ref(false);
-
+const uiStore = useUIStore();
 const formData = reactive({
   EAN: "",
   name: "",
@@ -129,10 +138,8 @@ const formData = reactive({
   autoGenerateEAN: false,
 });
 
-// Determine if we are editing an existing item by checking if a name prop was passed
 const isEditMode = computed(() => !!props.item?.name);
 
-// When the component mounts, check if we have props.item and populate the form!
 onMounted(() => {
   if (isEditMode.value) {
     formData.EAN = props.item.EAN || "";
@@ -159,8 +166,20 @@ const handleAutoGenerateToggle = (isGenerating: boolean) => {
 
 const submitProduct = async () => {
   const { valid } = await formRef.value.validate();
-  
+
   if (valid) {
+    try {
+      await api.get("products/ensureValid", {
+        params: {
+          ...formData,
+        },
+      });
+    } catch (err) {
+      err.response.data.message.forEach((msg) =>
+        uiStore.queueMessage(Color.ERROR, `${msg} already exists`),
+      );
+      return;
+    }
     if (isEditMode.value) {
       // If editing, emit 'update' instead of 'add'
       emit("update", { ...formData });
