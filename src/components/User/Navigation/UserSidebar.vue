@@ -60,7 +60,7 @@
       <v-list-item
         prepend-icon="mdi-package-variant-closed"
         title="Inventory"
-        :to="{ name: 'Inventory' }"
+        :to="{ name: 'Inventories' }"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"
@@ -70,7 +70,7 @@
         prepend-icon="mdi-truck-delivery-outline"
         title="Restock History"
         rounded="lg"
-        :to="{ name: 'RestockHistory' }"
+        :to="{ name: 'Restocks' }"
         color="amber-darken-2"
         base-color="white"
       />
@@ -78,7 +78,7 @@
       <v-list-item
         prepend-icon="mdi-clipboard-edit-outline"
         title="Adjustment History"
-        :to="{ name: 'AdjustHistory' }"
+        :to="{ name: 'Adjustments' }"
         rounded="lg"
         color="amber-darken-2"
         base-color="white"

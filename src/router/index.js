@@ -9,12 +9,6 @@ const routes = [
     component: () => import('@/layouts/GuestLayout.vue'),
     children: [
       {
-        path: 'products',
-        name: 'Products',
-        component: () => import('@/views/User/Products.vue'),
-        meta: { guest: true },
-      },
-      {
         path: '',
         name: 'Home',
         component: () => import('@/views/Guest/Home.vue'),
@@ -40,30 +34,39 @@ const routes = [
         name: 'Dashboard',
         component: () => import('@/views/User/Dashboard.vue'),
       },
+
       {
         path: 'products',
         name: 'Products',
-        component: () => import('@/views/User/Products.vue'),
+        component: () => import('@/views/User/Products/Index.vue'),
       },
       {
         path: 'products/add',
         name: 'Products/Add',
-        component: () => import('@/views/User/AddProducts.vue'),
+        component: () => import('@/views/User/Products/Add.vue'),
+      },
+
+      {
+        path: 'inventories',
+        name: 'Inventories',
+        component: () => import('@/views/User/Inventories.vue'),
+      },
+
+      {
+        path: 'restocks',
+        name: 'Restocks',
+        component: () => import('@/views/User/Restock/Index.vue'),
       },
       {
-        path: 'inventory',
-        name: 'Inventory',
-        component: () => import('@/views/User/Inventory.vue'),
+        path: 'restocks/add',
+        name: 'Restocks/Add',
+        component: () => import('@/views/User/Restock/Add.vue'),
       },
+      
       {
-        path: 'restock-history',
-        name: 'RestockHistory',
-        component: () => import('@/views/User/RestockHistory.vue'),
-      },
-      {
-        path: 'adjustment-history',
-        name: 'AdjustHistory',
-        component: () => import('@/views/User/AdjustHistory.vue'),
+        path: 'adjustments',
+        name: 'Adjustments',
+        component: () => import('@/views/User/Adjustments.vue'),
       },
     ],
   },

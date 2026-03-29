@@ -115,7 +115,7 @@
 
 <script setup>
 import api from "@/axios";
-import RestockDetails from "@/components/User/RestockDetails.vue";
+import RestockDetails from "@/components/User/Restock/RestockDetails.vue";
 import { computed, onMounted, ref } from "vue";
 
 // Table

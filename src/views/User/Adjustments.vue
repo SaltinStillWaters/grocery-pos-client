@@ -115,7 +115,7 @@
 
 <script setup>
 import api from "@/axios";
-import AdjustDetails from "@/components/User/AdjustDetails.vue";
+import AdjustDetails from "@/components/User/Adjustment/DetailsDialog.vue";
 import { computed, onMounted, ref } from "vue";
 
 // Table
