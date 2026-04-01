@@ -26,20 +26,38 @@
         @submit.prevent="submitRestock"
       >
         <v-row>
-          <v-col cols="12">
-            <v-text-field
-              v-model="formData.EAN"
-              label="EAN / Barcode"
-              prepend-inner-icon="mdi-barcode-scan"
-              variant="outlined"
-              density="comfortable"
-              color="blue-grey-darken-2"
-              :rules="[rules.required]"
-              placeholder="Scan or type barcode"
-              hide-details="auto"
-            />
-          </v-col>
-
+          <template v-if="formData.isNewProduct">
+            <v-col cols="12" class="py-0">
+              <v-text-field
+                v-model="formData.EAN"
+                label="EAN"
+                clearable                
+                prepend-inner-icon="mdi-format-text"
+                variant="outlined"
+                density="comfortable"
+                color="blue-grey-darken-2"
+                hide-details="auto"
+                :rules="[rules.required]"
+              />
+              
+            </v-col>
+          </template>
+          <template v-else>
+            <v-col cols="12" class="py-0">
+              <v-autocomplete
+                v-model="formData.EAN"
+                :items="matchedProducts"
+                item-title="name"
+                item-value="EAN"
+                :loading="isLoadingMatches"
+                label="Search Product (EAN or Name)"
+                placeholder="Start typing..."
+                clearable
+                @update:search="debounceSearch"
+                :custom-filter="() => true"
+              ></v-autocomplete>
+            </v-col>
+          </template>
           <v-col cols="12" sm="6" class="py-0">
             <v-text-field
               v-model.number="formData.quantity"
@@ -141,11 +159,12 @@
 </template>
 
 <script setup lang="ts">
+import api from "@/axios";
+import { Color, useUIStore } from "@/stores/ui";
 import { ref, reactive, computed, onMounted } from "vue";
 
 const emit = defineEmits(["close", "add", "update"]);
 
-// Updated props to match the new restock schema
 const props = defineProps<{
   item?: {
     EAN?: string;
@@ -159,6 +178,8 @@ const props = defineProps<{
 
 const formRef = ref<any>(null);
 const isFormValid = ref(false);
+const matchedProducts = ref([]);
+const isLoadingMatches = ref(false);
 
 const formData = reactive({
   EAN: "",
@@ -169,7 +190,6 @@ const formData = reactive({
   price: null as number | null,
 });
 
-// Check if we have an item prop passed in
 const isEditMode = computed(
   () => !!props.item && Object.keys(props.item).length > 0,
 );
@@ -191,7 +211,6 @@ const rules = {
   minOne: (v: number) => v >= 1 || "Must be at least 1",
 };
 
-// Clear out name and price if the user unchecks the "New Product" box
 const handleNewProductToggle = (isNew: boolean) => {
   if (!isNew) {
     formData.name = "";
@@ -203,7 +222,21 @@ const submitRestock = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
-    // Only send name and price if it's a new product
+    if (formData.isNewProduct) {
+      try {
+        await api.get("products/ensureValid", {
+          params: {
+            ...formData,
+          },
+        });
+      } catch (err) {
+        err.response.data.message.forEach((msg) =>
+          uiStore.queueMessage(Color.ERROR, `${msg} already exists`),
+        );
+        return;
+      }
+    }
+
     const payload = { ...formData };
     if (!payload.isNewProduct) {
       delete payload.name;
@@ -218,4 +251,41 @@ const submitRestock = async () => {
     formRef.value.reset();
   }
 };
+
+let debounceId: NodeJS.Timeout;
+
+function debounceSearch(querySearch: string) {
+  if (!querySearch) {
+    matchedProducts.value = [];
+    return;
+  }
+  if (debounceId) {
+    clearTimeout(debounceId);
+  }
+
+  debounceId = setTimeout(() => {
+    search(querySearch);
+  }, 1000);
+}
+
+const uiStore = useUIStore();
+
+async function search(querySearch: string) {
+  isLoadingMatches.value = true;
+  const query: any = {};
+  const isNumeric = /^\d+$/.test(querySearch);
+
+  if (isNumeric) {
+    query.EAN = querySearch;
+  } else {
+    query.name = querySearch.toUpperCase();
+  }
+
+  const result = await api.get("products/matches", {
+    params: query,
+  });
+
+  matchedProducts.value = result.data.data;
+  isLoadingMatches.value = false;
+}
 </script>
