@@ -66,7 +66,12 @@ const routes = [
       {
         path: 'adjustments',
         name: 'Adjustments',
-        component: () => import('@/views/User/Adjustments.vue'),
+        component: () => import('@/views/User/Adjustments/Index.vue'),
+      },
+      {
+        path: 'adjustments/add',
+        name: 'Adjustments/Add',
+        component: () => import('@/views/User/Adjustments/Add.vue'),
       },
     ],
   },

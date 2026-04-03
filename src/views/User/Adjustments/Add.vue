@@ -6,7 +6,7 @@
         color="amber-darken-2"
         class="me-2"
       />
-      <span class="text-subtitle-1 font-weight-bold">Restock Draft</span>
+      <span class="text-subtitle-1 font-weight-bold">Adjustment Draft</span>
       <v-spacer />
       <div class="d-flex ga-2">
         <v-btn
@@ -38,7 +38,7 @@
         <v-col cols="12" md="6">
           <v-text-field
             v-model="search"
-            label="Search restocked products..."
+            label="Search adjusted products..."
             prepend-inner-icon="mdi-magnify"
             variant="outlined"
             density="compact"
@@ -110,7 +110,7 @@
   </v-card>
 
   <v-dialog v-model="isAddDialogOpen" max-width="500" destroy-on-close>
-    <restock-dialog 
+    <add-dialog 
     @close="isAddDialogOpen = false" 
     @add="handleNewProduct" 
     @update="updateDraft" 
@@ -128,8 +128,8 @@
 
 <script setup>
 import api from "@/axios";
-import RestockDialog from "@/components/User/Restock/AddDialog.vue";
-import SaveDialog from "@/components/User/Restock/SaveDialog.vue";
+import AddDialog from "@/components/User/Adjustments/AddDialog.vue";
+import SaveDialog from "@/components/User/Adjustments/SaveDialog.vue";
 import { useAuthStore } from "@/stores/auth";
 import { Color, useUIStore } from "@/stores/ui";
 import { ref } from "vue";
@@ -145,10 +145,10 @@ const editItem = ref({});
 const editIndex = ref(-1);
 
 const headers = ref([
+  { title: "EAN", key: "EAN", align: "start", sortable: true },
   { title: "Name", key: "name", align: "start", sortable: true },
-  { title: "Quantity", key: "quantity", align: "start", sortable: true },
-  { title: "Unit", key: "unit", align: "start", sortable: true },
-  { title: "Total Cost", key: "totalCost", align: "start", sortable: true },
+  { title: "Change", key: "change", align: "start", sortable: true },
+  { title: "Reason", key: "reason", align: "start", sortable: true },
   { title: "Actions", key: "actions", align: "end", sortable: false }, 
 ]);
 
@@ -176,6 +176,7 @@ const openAddDialog = () => {
 
 // Catches the emitted ADD data from the dialog and pushes it to the table
 const handleNewProduct = (newProduct) => {
+  console.log({newProduct})
   items.value.push(newProduct);
   isAddDialogOpen.value = false;
 };

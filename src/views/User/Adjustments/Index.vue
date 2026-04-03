@@ -14,6 +14,7 @@
           variant="flat"
           prepend-icon="mdi-package-up"
           size="small"
+          :to="{name: 'Adjustments/Add'}"
         >
           Adjust
         </v-btn>
@@ -115,7 +116,7 @@
 
 <script setup>
 import api from "@/axios";
-import AdjustDetails from "@/components/User/Adjustment/DetailsDialog.vue";
+import AdjustDetails from "@/components/User/Adjustments/DetailsDialog.vue";
 import { computed, onMounted, ref } from "vue";
 
 // Table
