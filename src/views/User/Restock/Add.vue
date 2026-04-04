@@ -26,7 +26,7 @@
           size="small"
           @click="isSaveDialogOpen = true"
         >
-          Save All to Database
+          Save
         </v-btn>
       </div>
     </v-card-title>
@@ -110,10 +110,10 @@
   </v-card>
 
   <v-dialog v-model="isAddDialogOpen" max-width="500" destroy-on-close>
-    <restock-dialog 
+    <add-dialog 
     @close="isAddDialogOpen = false" 
-    @add="handleNewProduct" 
-    @update="updateDraft" 
+    @add="handleNewItem" 
+    @update="handleUpdateItem" 
     v-bind="editItem" 
     :item="editItem"
     />
@@ -126,69 +126,98 @@
     </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import api from "@/axios";
-import RestockDialog from "@/components/User/Restock/AddDialog.vue";
+import AddDialog from "@/components/User/Restock/AddDialog.vue";
+import { AddForm, SaveForm } from "@/components/User/Restock/dto";
 import SaveDialog from "@/components/User/Restock/SaveDialog.vue";
-import { useAuthStore } from "@/stores/auth";
 import { Color, useUIStore } from "@/stores/ui";
+import { isAxiosError } from "axios";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const isAddDialogOpen = ref(false);
 const isSaveDialogOpen = ref(false);
-const authStore = useAuthStore()
+
 const limit = ref(5);
 const search = ref("");
-const items = ref([]); 
+const items = ref<(AddForm)[]>([]); 
 
-const editItem = ref({});
+const editItem = ref<AddForm>();
 const editIndex = ref(-1);
 
 const headers = ref([
-  { title: "Name", key: "name", align: "start", sortable: true },
-  { title: "Quantity", key: "quantity", align: "start", sortable: true },
-  { title: "Unit", key: "unit", align: "start", sortable: true },
-  { title: "Total Cost", key: "totalCost", align: "start", sortable: true },
-  { title: "Actions", key: "actions", align: "end", sortable: false }, 
+  { title: "Name", key: "name", align: "start" as const, sortable: true },
+  { title: "Quantity", key: "quantity", align: "start" as const, sortable: true },
+  { title: "Unit Cost", key: "unitCost", align: "start" as const, sortable: true },
+  { title: "Total Cost", key: "totalCost", align: "start" as const, sortable: true },
+  { title: "Actions", key: "actions", align: "end" as const, sortable: false }, 
 ]);
 
 const uiStore = useUIStore()
+const router = useRouter()
 
-const saveToDB = async (data) => {
+const saveToDB = async (saveForm: SaveForm) => {
   console.log({items})
   try {
-    const result = await api.post('/restocks', {
-      restockDetails: items.value,
-      description: data?.description
-    });
-    console.log(result)
-  } catch (error) {
-    uiStore.queueMessage(Color.ERROR, error?.response?.data?.message ?? 'Error saving. Try again.')    
-  }
+    const restockDetails = items.value.map((item: AddForm) => {
+      let result: any = {}
 
+      if (item.isNewProduct) {
+        result.newProduct = {
+          EAN: item.EAN,
+          name: item.name,
+          price: item.price,
+        }
+      } else {
+        result.product = item.product 
+      }
+
+      result.quantity = item.quantity
+      result.unitCost = item.unitCost
+
+      return result
+    })
+
+    console.log({restockDetails})
+    await api.post('/restocks', {
+      restockDetails,
+      description: saveForm?.description
+    });
+
+    isSaveDialogOpen.value = false
+    router.push({
+      name: 'Restocks'
+    })
+    uiStore.queueMessage(Color.SUCCESS, 'Adjustments saved.')    
+  } catch (error) {
+    if (isAxiosError(error))
+      uiStore.queueMessage(Color.ERROR, error?.response?.data?.message ?? 'Error saving. Try again.')    
+  }
 }
 
 const openAddDialog = () => {
-  editItem.value = {}; 
+  editItem.value = undefined; 
   editIndex.value = -1; 
   isAddDialogOpen.value = true;
 };
 
-// Catches the emitted ADD data from the dialog and pushes it to the table
-const handleNewProduct = (newProduct) => {
-  items.value.push(newProduct);
+const handleNewItem = (newItem: AddForm) => {
+  const totalCost = newItem.quantity * newItem.unitCost
+  items.value.push({...newItem, totalCost});
   isAddDialogOpen.value = false;
 };
 
-// Opens the dialog for an EXISTING product
-const editDraft = (item) => {
+const editDraft = (item: AddForm) => {
   editIndex.value = items.value.indexOf(item); // Track WHICH item we are editing
-  editItem.value = { ...item }; // Pass a COPY of the item to the form
+
+  const totalCost = item.quantity * item.unitCost
+  editItem.value = { ...item, totalCost }; // Pass a COPY of the item to the form
   isAddDialogOpen.value = true;
 };
 
 // Catches the emitted UPDATE data and overwrites the existing table row
-const updateDraft = (updatedProduct) => {
+const handleUpdateItem = (updatedProduct: AddForm) => {
   if (editIndex.value > -1) {
     // Replace the old item with the newly edited one at the same index
     items.value[editIndex.value] = updatedProduct; 
@@ -197,7 +226,7 @@ const updateDraft = (updatedProduct) => {
 };
 
 // Deletes a specific item from the drafts array
-const deleteDraft = (item) => {
+const deleteDraft = (item: AddForm) => {
   const index = items.value.indexOf(item);
   if (index > -1) {
     items.value.splice(index, 1);

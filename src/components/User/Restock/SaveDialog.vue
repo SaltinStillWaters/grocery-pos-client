@@ -28,9 +28,11 @@
         <v-row>
           <v-col cols="12" class="py-0">
             <v-text-field
-              v-model="formData.descripton"
+              v-model="formData.description"
               label="Description"
               clearable
+              :rules="[rules.required]"
+
               prepend-inner-icon="mdi-format-text"
               variant="outlined"
               density="comfortable"
@@ -69,22 +71,27 @@
 </template>
 
 <script setup lang="ts">
+import { SaveForm } from "@/components/User/Adjustments/dto";
+import { rules } from "@/utils/rules";
 import { ref, reactive } from "vue";
 
-const emit = defineEmits(["close", "save"]);
+const emit = defineEmits<{
+  close: [],
+  save: [payload: SaveForm]
+}>();
 
 const formRef = ref<any>(null);
 const isFormValid = ref(false);
-
-const formData = reactive({
-  descripton: "",
+const formData = reactive<SaveForm>({
+  description: "",
 });
 
 const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
-    emit("save", formData)
+    const payload = {...formData}
+    emit("save", payload)
     formRef.value.reset();
   }
 };

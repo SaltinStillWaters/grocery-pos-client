@@ -23,7 +23,7 @@
       <v-form
         ref="formRef"
         v-model="isFormValid"
-        @submit.prevent="submitRestock"
+        @submit.prevent="handleSubmit"
       >
         <v-row>
           <template v-if="formData.isNewProduct">
@@ -36,11 +36,20 @@
                 variant="outlined"
                 density="comfortable"
                 color="blue-grey-darken-2"
+                :disabled="formData.autoGenerateEAN"
                 hide-details="auto"
-                :rules="[rules.required]"
+                :rules="EANRules"
               />
-              
+              <v-checkbox
+              v-model="formData.autoGenerateEAN"
+              label="Auto-generate EAN"
+              color="amber-darken-2"
+              density="compact"
+              hide-details="auto"
+              @update:model-value="formData.EAN = ''"
+            />
             </v-col>
+            
           </template>
           <template v-else>
             <v-col cols="12" class="py-0">
@@ -50,11 +59,14 @@
                 item-title="name"
                 item-value="EAN"
                 :loading="isLoadingMatches"
+                @update:search="debounceSearch"
+                @update:model-value="handleProductSelect"
+                :custom-filter="() => true"
+                :rules="[rules.required]"
+                
                 label="Search Product (EAN or Name)"
                 placeholder="Start typing..."
                 clearable
-                @update:search="debounceSearch"
-                :custom-filter="() => true"
               ></v-autocomplete>
             </v-col>
           </template>
@@ -150,9 +162,9 @@
         class="text-none px-6"
         :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-plus'"
         :disabled="!isFormValid"
-        @click="submitRestock"
+        @click="handleSubmit"
       >
-        {{ isEditMode ? "Update Restock" : "Add Restock" }}
+        {{ isEditMode ? "Update Restock" : "Restock" }}
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -162,32 +174,34 @@
 import api from "@/axios";
 import { Color, useUIStore } from "@/stores/ui";
 import { ref, reactive, computed, onMounted } from "vue";
+import { AddForm, MatchedProductsDto } from "./dto";
+import { isAxiosError } from "axios";
+import { rules } from "@/utils/rules";
 
-const emit = defineEmits(["close", "add", "update"]);
+const props = defineProps<{ item?: AddForm }>();
 
-const props = defineProps<{
-  item?: {
-    EAN?: string;
-    quantity?: number;
-    unitCost?: number;
-    isNewProduct?: boolean;
-    name?: string;
-    price?: number;
-  };
+const emit = defineEmits<{
+  close: [],
+  add: [payload: AddForm],
+  update: [payload: AddForm]
 }>();
+
 
 const formRef = ref<any>(null);
 const isFormValid = ref(false);
-const matchedProducts = ref([]);
-const isLoadingMatches = ref(false);
-
-const formData = reactive({
-  EAN: "",
-  quantity: null as number | null,
-  unitCost: null as number | null,
+const formData = reactive<AddForm>({
+  autoGenerateEAN: false,
+  EAN: '',
+  quantity: 0,
+  unitCost: 0,
   isNewProduct: false,
-  name: "",
-  price: null as number | null,
+  name: '',
+  price: 0,
+  product: '',
+});
+
+const EANRules = computed(() => {
+  return formData.autoGenerateEAN ? [] : [rules.required];
 });
 
 const isEditMode = computed(
@@ -196,29 +210,29 @@ const isEditMode = computed(
 
 onMounted(() => {
   if (isEditMode.value && props.item) {
+    formData.autoGenerateEAN = props.item.autoGenerateEAN || false;
     formData.EAN = props.item.EAN || "";
-    formData.quantity = props.item.quantity || null;
-    formData.unitCost = props.item.unitCost || null;
+    formData.quantity = props.item.quantity || 0;
+    formData.unitCost = props.item.unitCost || 0;
+    formData.product = props.item.product || undefined;
+
     formData.isNewProduct = props.item.isNewProduct || false;
-    formData.name = props.item.name || "";
-    formData.price = props.item.price || null;
+    formData.name = props.item.name || '';
+    formData.price = props.item.price || undefined;
   }
 });
 
-const rules = {
-  required: (v: any) => !!v || "This field is required",
-  minZero: (v: number) => v >= 0 || "Cannot be negative",
-  minOne: (v: number) => v >= 1 || "Must be at least 1",
-};
 
-const handleNewProductToggle = (isNew: boolean) => {
-  if (!isNew) {
+const handleNewProductToggle = () => {
+  if (!formData.isNewProduct) {
     formData.name = "";
-    formData.price = null;
+    formData.price = 0;
   }
 };
 
-const submitRestock = async () => {
+const uiStore = useUIStore();
+
+const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
@@ -229,28 +243,43 @@ const submitRestock = async () => {
             ...formData,
           },
         });
-      } catch (err) {
-        err.response.data.message.forEach((msg) =>
-          uiStore.queueMessage(Color.ERROR, `${msg} already exists`),
-        );
+      } catch (error) {
+        if (isAxiosError(error))
+          error.response?.data.message.forEach((duplicate: string) =>
+            uiStore.queueMessage(Color.ERROR, `${duplicate} already exists`),
+          );
         return;
       }
     }
 
-    const payload = { ...formData };
-    if (!payload.isNewProduct) {
-      delete payload.name;
-      delete payload.price;
-    }
+    let payload = { ...formData };
+    console.log({payload})
 
-    if (isEditMode.value) {
+    if (isEditMode.value) 
       emit("update", payload);
-    } else {
+    else 
       emit("add", payload);
-    }
+    
     formRef.value.reset();
   }
 };
+
+const handleProductSelect = () => {
+  console.log('Selection')
+  const match = matchedProducts.value.find((x: MatchedProductsDto) => {
+    return x.EAN === formData.EAN
+  });
+
+  console.log({match})
+  if (match) {
+    formData.name = match.name
+    formData.product = match.product
+  }
+}
+
+//Product Search
+const matchedProducts = ref<MatchedProductsDto[]>([])
+const isLoadingMatches = ref(false);
 
 let debounceId: NodeJS.Timeout;
 
@@ -265,22 +294,22 @@ function debounceSearch(querySearch: string) {
 
   debounceId = setTimeout(() => {
     search(querySearch);
-  }, 1000);
+  }, 500);
 }
 
-const uiStore = useUIStore();
-
 async function search(querySearch: string) {
+  if (!querySearch) return
+
   isLoadingMatches.value = true;
+
   const query: any = {};
   const isNumeric = /^\d+$/.test(querySearch);
 
-  if (isNumeric) {
+  if (isNumeric) 
     query.EAN = querySearch;
-  } else {
+  else 
     query.name = querySearch.toUpperCase();
-  }
-
+  
   const result = await api.get("products/matches", {
     params: query,
   });
