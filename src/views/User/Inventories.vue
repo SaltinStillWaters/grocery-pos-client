@@ -158,7 +158,7 @@ async function fetchInventory() {
     },
   });
 
-  serverItems.value = result.data.data.data.map((inventory) => {
+  const data = result.data.data.data.map((inventory) => {
     return {
       id: inventory.product._id,
       EAN: inventory.product.EAN,
@@ -167,6 +167,12 @@ async function fetchInventory() {
     };
   });
 
+  data.sort((a, b) => {
+    return a['name'].localeCompare(b['name'])
+  })
+
+  serverItems.value = data
+  
   totalItems.value = result.data.data.totalItems;
   loading.value = false;
 }
