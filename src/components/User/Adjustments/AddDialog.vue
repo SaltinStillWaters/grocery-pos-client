@@ -141,12 +141,13 @@ onMounted(() => {
   }
 });
 
+
 const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
     const payload = { ...formData }
-    console.log({payload})
+    
     if (isEditMode.value)
       emit('update', payload)
     else
@@ -204,6 +205,7 @@ async function search(querySearch: string) {
   const result = await api.get("products/matches", {
     params: query,
   });
+
   matchedProducts.value = result.data.data;
   isLoadingMatches.value = false;
 }

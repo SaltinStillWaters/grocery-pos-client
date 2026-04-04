@@ -26,7 +26,7 @@
           size="small"
           @click="isSaveDialogOpen = true"
         >
-          Save All to Database
+          Save
         </v-btn>
       </div>
     </v-card-title>
@@ -110,7 +110,7 @@
     <add-dialog 
       @close="isAddDialogOpen = false" 
       @add="handleNewItem" 
-      @update="updateDraft" 
+      @update="handleUpdateIem" 
       v-bind="editItem" 
       :item="editItem"
     />
@@ -157,11 +157,11 @@ const router = useRouter()
 const saveToDB = async (saveForm: SaveForm) => {
   console.log({items, saveForm})
   try {
-    const result = await api.post('/adjustments', {
+    await api.post('/adjustments', {
       adjustDetails: items.value,
       description: saveForm?.description
     });
-    console.log('API:', {result})
+
     isSaveDialogOpen.value = false
     router.push({
       name: 'Adjustments'
@@ -172,7 +172,6 @@ const saveToDB = async (saveForm: SaveForm) => {
       uiStore.queueMessage(Color.ERROR, 
         error.response?.data?.message ?? 'Error saving. Try again.')    
   }
-
 }
 
 const openAddDialog = () => {
@@ -181,14 +180,11 @@ const openAddDialog = () => {
   isAddDialogOpen.value = true;
 };
 
-// Catches the emitted ADD data from the dialog and pushes it to the table
 const handleNewItem = (newProduct: AddForm) => {
-  console.log({newProduct})
   items.value.push(newProduct);
   isAddDialogOpen.value = false;
 };
 
-// Opens the dialog for an EXISTING product
 const editDraft = (item: AddForm) => {
   editIndex.value = items.value.indexOf(item); // Track WHICH item we are editing
   editItem.value = { ...item }; // Pass a COPY of the item to the form
@@ -196,7 +192,7 @@ const editDraft = (item: AddForm) => {
 };
 
 // Catches the emitted UPDATE data and overwrites the existing table row
-const updateDraft = (updatedProduct: AddForm) => {
+const handleUpdateIem = (updatedProduct: AddForm) => {
   if (editIndex.value > -1) {
     // Replace the old item with the newly edited one at the same index
     items.value[editIndex.value] = updatedProduct; 
