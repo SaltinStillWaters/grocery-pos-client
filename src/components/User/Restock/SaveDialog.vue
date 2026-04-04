@@ -23,7 +23,7 @@
       <v-form
         ref="formRef"
         v-model="isFormValid"
-        @submit.prevent="save"
+        @submit.prevent="handleSubmit"
       >
         <v-row>
           <v-col cols="12" class="py-0">
@@ -60,7 +60,7 @@
         class="text-none px-6"
         :prepend-icon="'mdi-content-save'"
         :disabled="!isFormValid"
-        @click="save"
+        @click="handleSubmit"
       >
         {{ "Save" }}
       </v-btn>
@@ -69,8 +69,6 @@
 </template>
 
 <script setup lang="ts">
-import api from "@/axios";
-import { Color, useUIStore } from "@/stores/ui";
 import { ref, reactive } from "vue";
 
 const emit = defineEmits(["close", "save"]);
@@ -82,11 +80,7 @@ const formData = reactive({
   descripton: "",
 });
 
-const rules = {
-  required: (v: any) => !!v || "This field is required",
-};
-
-const save = async () => {
+const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
@@ -94,7 +88,4 @@ const save = async () => {
     formRef.value.reset();
   }
 };
-
-const uiStore = useUIStore();
-
 </script>

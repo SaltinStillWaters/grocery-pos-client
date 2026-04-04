@@ -23,7 +23,7 @@
       <v-form
         ref="formRef"
         v-model="isFormValid"
-        @submit.prevent="submit"
+        @submit.prevent="handleSubmit"
       >
         <v-row>
             <v-col cols="12" class="py-0">
@@ -34,7 +34,7 @@
                 item-value="EAN"
                 :loading="isLoadingMatches"
                 @update:search="debounceSearch"
-                @update:model-value="handleNameUpdate"
+                @update:model-value="handleProductSelect"
                 :custom-filter="() => true"
                 :rules="[rules.required]"
                 
@@ -94,7 +94,7 @@
         class="text-none px-6"
         :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-plus'"
         :disabled="!isFormValid"
-        @click="submit"
+        @click="handleSubmit"
       >
         {{ isEditMode ? "Update Adjustment" : "Adjust" }}
       </v-btn>
@@ -105,25 +105,26 @@
 <script setup lang="ts">
 import api from "@/axios";
 import { ref, reactive, computed, onMounted } from "vue";
+import { AddForm, MatchedProductsDto } from "./dto";
+import { rules } from "@/utils/rules";
 
-const emit = defineEmits(["close", "add", "update"]);
+const props = defineProps<{ item?: AddForm }>();
 
-const props = defineProps<{
-  item?: {
-    EAN: string,
-    name: string,
-    change: number,
-    reason: string,
-  };
+const emit = defineEmits<{
+  close: [],
+  add: [payload: AddForm],
+  update: [payload: AddForm]
 }>();
+
 
 const formRef = ref<any>(null);
 const isFormValid = ref(false);
-const formData = reactive({
-  EAN: "",
-  name: "",
-  change: 0,
-  reason: "",
+const formData = reactive<AddForm>({
+    EAN: '',
+    name: '',
+    change: 0,
+    reason: '',
+    product: '',
 });
 
 const isEditMode = computed(
@@ -136,19 +137,16 @@ onMounted(() => {
     formData.name = props.item.name || "";
     formData.change = props.item.change || 0;
     formData.reason = props.item.reason || "";
+    formData.product = props.item.product || "";
   }
 });
 
-const rules = {
-  required: (v: any) => !!v || "This field is required",
-};
-
-const submit = async () => {
+const handleSubmit = async () => {
   const { valid } = await formRef.value.validate();
 
   if (valid) {
     const payload = { ...formData }
-
+    console.log({payload})
     if (isEditMode.value)
       emit('update', payload)
     else
@@ -158,17 +156,22 @@ const submit = async () => {
   }
 };
 
-const handleNameUpdate = () => {
-  matchedProducts.value.forEach((match) => {
-    if (match.EAN === formData.EAN) {
-      formData.name = match.name
-      return
-    }
-  })
+const handleProductSelect = () => {
+  console.log('Selection')
+  const match = matchedProducts.value.find((x: MatchedProductsDto) => {
+    return x.EAN === formData.EAN
+  });
+  console.log({match})
+
+
+  if (match) {
+    formData.name = match.name
+    formData.product = match.product
+  }
 }
 
 // Product Search
-const matchedProducts = ref([]);
+const matchedProducts = ref<MatchedProductsDto[]>([])
 const isLoadingMatches = ref(false);
 
 let debounceId: NodeJS.Timeout;

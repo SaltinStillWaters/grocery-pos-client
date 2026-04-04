@@ -80,10 +80,7 @@
       </template>
 
       <template v-slot:item.EAN="{ item }">
-        <span v-if="item.autoGenerateEAN" class="text-grey-darken-1 font-italic">
-          [Auto-Generated]
-        </span>
-        <span v-else>{{ item.EAN }}</span>
+        <span>{{ item.EAN }}</span>
       </template>
 
       <template v-slot:item.actions="{ item }">
@@ -111,11 +108,11 @@
 
   <v-dialog v-model="isAddDialogOpen" max-width="500" destroy-on-close>
     <add-dialog 
-    @close="isAddDialogOpen = false" 
-    @add="handleNewProduct" 
-    @update="updateDraft" 
-    v-bind="editItem" 
-    :item="editItem"
+      @close="isAddDialogOpen = false" 
+      @add="handleNewItem" 
+      @update="updateDraft" 
+      v-bind="editItem" 
+      :item="editItem"
     />
   </v-dialog>
   <v-dialog v-model="isSaveDialogOpen" max-width="500" destroy-on-close>
@@ -126,70 +123,80 @@
     </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import api from "@/axios";
 import AddDialog from "@/components/User/Adjustments/AddDialog.vue";
 import SaveDialog from "@/components/User/Adjustments/SaveDialog.vue";
-import { useAuthStore } from "@/stores/auth";
 import { Color, useUIStore } from "@/stores/ui";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { AddForm, SaveForm,  } from "../../../components/User/Adjustments/dto";
+import axios from "axios";
 
 const isAddDialogOpen = ref(false);
 const isSaveDialogOpen = ref(false);
-const authStore = useAuthStore()
+
 const limit = ref(5);
 const search = ref("");
-const items = ref([]); 
+const items = ref<AddForm[]>([]); 
 
-const editItem = ref({});
+const editItem = ref<AddForm>();
 const editIndex = ref(-1);
 
 const headers = ref([
-  { title: "EAN", key: "EAN", align: "start", sortable: true },
-  { title: "Name", key: "name", align: "start", sortable: true },
-  { title: "Change", key: "change", align: "start", sortable: true },
-  { title: "Reason", key: "reason", align: "start", sortable: true },
-  { title: "Actions", key: "actions", align: "end", sortable: false }, 
+  { title: "EAN", key: "EAN", align: "start" as const, sortable: true },
+  { title: "Name", key: "name", align: "start" as const, sortable: true },
+  { title: "Change", key: "change", align: "start" as const, sortable: true },
+  { title: "Reason", key: "reason", align: "start" as const, sortable: true },
+  { title: "Actions", key: "actions", align: "end" as const, sortable: false }, 
 ]);
 
 const uiStore = useUIStore()
+const router = useRouter()
 
-const saveToDB = async (data) => {
-  console.log({items})
+const saveToDB = async (saveForm: SaveForm) => {
+  console.log({items, saveForm})
   try {
-    const result = await api.post('/restocks', {
-      restockDetails: items.value,
-      description: data?.description
+    const result = await api.post('/adjustments', {
+      adjustDetails: items.value,
+      description: saveForm?.description
     });
-    console.log(result)
+    console.log('API:', {result})
+    isSaveDialogOpen.value = false
+    router.push({
+      name: 'Adjustments'
+    })
+    uiStore.queueMessage(Color.SUCCESS, 'Adjustments saved.')    
   } catch (error) {
-    uiStore.queueMessage(Color.ERROR, error?.response?.data?.message ?? 'Error saving. Try again.')    
+    if (axios.isAxiosError(error))
+      uiStore.queueMessage(Color.ERROR, 
+        error.response?.data?.message ?? 'Error saving. Try again.')    
   }
 
 }
 
 const openAddDialog = () => {
-  editItem.value = {}; 
+  editItem.value = undefined; //resets form
   editIndex.value = -1; 
   isAddDialogOpen.value = true;
 };
 
 // Catches the emitted ADD data from the dialog and pushes it to the table
-const handleNewProduct = (newProduct) => {
+const handleNewItem = (newProduct: AddForm) => {
   console.log({newProduct})
   items.value.push(newProduct);
   isAddDialogOpen.value = false;
 };
 
 // Opens the dialog for an EXISTING product
-const editDraft = (item) => {
+const editDraft = (item: AddForm) => {
   editIndex.value = items.value.indexOf(item); // Track WHICH item we are editing
   editItem.value = { ...item }; // Pass a COPY of the item to the form
   isAddDialogOpen.value = true;
 };
 
 // Catches the emitted UPDATE data and overwrites the existing table row
-const updateDraft = (updatedProduct) => {
+const updateDraft = (updatedProduct: AddForm) => {
   if (editIndex.value > -1) {
     // Replace the old item with the newly edited one at the same index
     items.value[editIndex.value] = updatedProduct; 
@@ -198,7 +205,7 @@ const updateDraft = (updatedProduct) => {
 };
 
 // Deletes a specific item from the drafts array
-const deleteDraft = (item) => {
+const deleteDraft = (item: AddForm) => {
   const index = items.value.indexOf(item);
   if (index > -1) {
     items.value.splice(index, 1);
