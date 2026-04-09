@@ -244,10 +244,14 @@ const handleSubmit = async () => {
           },
         });
       } catch (error) {
-        if (isAxiosError(error))
-          error.response?.data.message.forEach((duplicate: string) =>
-            uiStore.queueMessage(Color.ERROR, `${duplicate} already exists`),
-          );
+        if (isAxiosError(error)) {
+        let message = error.response?.data.message;
+        message = Array.isArray(message) ? message : [message]
+        
+        message.forEach((msg: any) =>
+        uiStore.queueMessage(Color.ERROR, msg),
+        );
+        }
         return;
       }
     }

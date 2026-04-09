@@ -187,8 +187,8 @@ const resetSearch = () => {
 };
 
 const resetFilters = () => {
-  searchEAN.value = null;
-  searchName.value = null;
+  searchEAN.value = '';
+  searchName.value = '';
   resetSearch();
 };
 
@@ -204,7 +204,7 @@ async function fetchDetails() {
   });
 
   console.log({ result });
-  serverItems.value = result.data.data.data.map((details) => {
+  serverItems.value = result.data.data.data.map((details: any) => {
     return {
       id: details.id,
       name: details.product?.name,

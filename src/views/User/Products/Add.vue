@@ -128,6 +128,7 @@ import api from "@/axios";
 import AddProductDialog from "@/components/User/Product/AddDialog.vue";
 import { Color, useUIStore } from "@/stores/ui";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const isAddDialogOpen = ref(false);
 const uiStore = useUIStore();
@@ -146,6 +147,8 @@ const headers = ref([
   { title: "Actions", key: "actions", align: "end" as const, sortable: false },
 ]);
 
+const router = useRouter()
+
 const saveToDB = async () => {
   if (items.value.length === 0) {
     uiStore.queueMessage(Color.ERROR, "No products to save");
@@ -156,14 +159,14 @@ const saveToDB = async () => {
     await api.post("/products/bulk", {
       newProducts: items.value,
     });
-  } catch (err) {
+  } catch (err: any) {
     const status = err.status
     let messages: string[] = []
 
     switch (status) {
       case 400:
         const responseMessages = err.response.data.message
-        responseMessages.forEach(message => {
+        responseMessages.forEach((message: any) => {
           messages.push(`${message.property} ${message.msg}`)
         })
 
@@ -177,6 +180,9 @@ const saveToDB = async () => {
     return;
   }
 
+  router.push({
+    name: 'Products'
+  })
   uiStore.queueMessage(Color.SUCCESS, "Products saved");
 };
 

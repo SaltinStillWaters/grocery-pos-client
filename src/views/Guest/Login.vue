@@ -44,7 +44,7 @@
         <div class="mb-8">
           <!-- <p class="text-overline text-primary font-weight-bold mb-1">Welcome Back</p> -->
           <h1 class="text-h5 font-weight-bold text-grey-darken-4">Welcome Back!</h1>
-          <p class="mt-1 text-body-2 text-grey-darken-2 font-weight-medium">Sign in your account.</p>
+          <p class="mt-1 text-body-2 text-grey-darken-2 font-weight-medium">Sign in to your account.</p>
           <hr>
         </div>
 

@@ -72,10 +72,7 @@ import logoPath from '@/assets/logo-outlined.png'
 const drawer = ref(false)
 const route = useRoute()
 
-const navItems = [
-  { label: 'Home',       to: '/',           icon: 'mdi-home-outline' },
-  { label: 'Products', to: '/products', icon: 'mdi-office-building-outline' },
-]
+const navItems = []
 
 const isActive = (to) => {
   if (to === '/') return route.path === '/'

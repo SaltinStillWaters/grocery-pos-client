@@ -117,6 +117,7 @@
 <script setup lang="ts">
 import api from "@/axios";
 import { Color, useUIStore } from "@/stores/ui";
+import { isAxiosError } from "axios";
 import { ref, reactive, computed, onMounted } from "vue";
 
 const emit = defineEmits(["close", "add", "update"]);
@@ -160,7 +161,7 @@ const eanRules = computed(() => {
   return formData.autoGenerateEAN ? [] : [rules.required];
 });
 
-const handleAutoGenerateToggle = (isGenerating: boolean) => {
+const handleAutoGenerateToggle = (isGenerating: boolean | null) => {
   if (isGenerating) {
     formData.EAN = "";
   }
@@ -177,11 +178,18 @@ const submitProduct = async () => {
         },
       });
     } catch (err) {
-      err.response.data.message.forEach((msg) =>
-        uiStore.queueMessage(Color.ERROR, `${msg} already exists`),
-      );
+      if (isAxiosError(err)) {
+        let message = err.response?.data.message;
+        message = Array.isArray(message) ? message : [message]
+        
+        message.forEach((msg: any) =>
+        uiStore.queueMessage(Color.ERROR, msg),
+        );
+      }
+
       return;
     }
+    
     if (isEditMode.value) {
       // If editing, emit 'update' instead of 'add'
       emit("update", { ...formData });
