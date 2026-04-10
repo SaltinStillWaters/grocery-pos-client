@@ -9,12 +9,6 @@ const routes = [
     component: () => import('@/layouts/GuestLayout.vue'),
     children: [
       {
-        path: '',
-        name: 'Home',
-        component: () => import('@/views/Guest/Home.vue'),
-        meta: { guest: true },
-      },
-      {
         path: 'login',
         name: 'Login',
         component: () => import('@/views/Guest/Login.vue'),
@@ -75,6 +69,12 @@ const routes = [
       },
     ],
   },
+
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: { name: 'Login' } 
+  }
 ]
 
 const router = createRouter({
