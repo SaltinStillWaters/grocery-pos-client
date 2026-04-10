@@ -12,7 +12,7 @@ export const useAuthStore = defineStore('auth', () => {
     
   const user = ref(initialUser)
 
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => !!user.value && document.cookie.split('; ').some(row => row.startsWith('dummy')))
 
   const login = async (username, password) => {
     const response = await api.post('/auth/login', { username, password })
