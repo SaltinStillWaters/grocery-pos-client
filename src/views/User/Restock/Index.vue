@@ -12,7 +12,7 @@
         <v-btn
           color="amber-darken-2"
           variant="flat"
-          prepend-icon="mdi-package-up"
+          prepend-icon="mdi-truck-delivery-outline"
           size="small"
           :to="{
             name: 'Restocks/Add'

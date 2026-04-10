@@ -2,7 +2,7 @@
   <v-card elevation="2" class="rounded-lg border">
     <v-card-title class="d-flex align-center px-4 py-3 bg-grey-lighten-4">
       <v-icon
-        icon="mdi-package-variant-closed"
+        icon="mdi-format-list-bulleted"
         color="amber-darken-2"
         class="me-2"
       />
@@ -16,23 +16,7 @@
           :to="{name: 'Products/Add'}"
           size="small"
         >
-          Add Product
-        </v-btn>
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
-          prepend-icon="mdi-package-up"
-          size="small"
-        >
-          Restock
-        </v-btn>
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
-          prepend-icon="mdi-pencil"
-          size="small"
-        >
-          Adjust
+          Add Products
         </v-btn>
       </div>
     </v-card-title>
@@ -52,13 +36,7 @@
             hide-details
             color="amber-darken-2"
             clearable
-            @click:clear="
-              () => {
-                searchEAN = '';
-                fetchProducts();
-              }
-            "
-            @keyup.enter="resetSearch"
+            @update:model-value="resetSearch"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -72,13 +50,7 @@
             hide-details
             color="amber-darken-2"
             clearable
-            @click:clear="
-              () => {
-                searchName = '';
-                fetchProducts();
-              }
-            "
-            @keyup.enter="resetSearch"
+            @update:model-value="resetSearch"
           />
         </v-col>
         <v-spacer />

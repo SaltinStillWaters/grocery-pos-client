@@ -1,9 +1,9 @@
 <template>
   <v-card elevation="0" class="rounded-lg">
     <v-card-title
-      class="d-flex align-center px-4 py-3 bg-blue-grey-lighten-5 border-bottom"
+      class="d-flex align-center px-4 py-3 bg-amber-lighten-5 border-bottom"
     >
-      <v-icon icon="mdi-package-down" color="blue-grey-darken-2" class="me-2" />
+      <v-icon icon="mdi-tune" color="blue-grey-darken-2" class="me-2" />
       <span class="text-subtitle-1 font-weight-bold text-blue-grey-darken-4">
         {{ isEditMode ? "Edit Adjustment" : "Adjust Stock" }}
       </span>
@@ -38,6 +38,7 @@
                 :custom-filter="() => true"
                 :rules="[rules.required]"
                 
+                hide-details="auto"
                 label="Search Product (EAN or Name)"
                 placeholder="Start typing..."
                 clearable

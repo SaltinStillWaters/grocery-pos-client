@@ -2,7 +2,7 @@
   <v-card elevation="2" class="rounded-lg border">
     <v-card-title class="d-flex align-center px-4 py-3 bg-grey-lighten-4">
       <v-icon
-        icon="mdi-package-variant-closed"
+        icon="mdi-format-list-bulleted"
         color="amber-darken-2"
         class="me-2"
       />

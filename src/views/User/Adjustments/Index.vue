@@ -2,7 +2,7 @@
   <v-card elevation="2" class="rounded-lg border">
     <v-card-title class="d-flex align-center px-4 py-3 bg-grey-lighten-4">
       <v-icon
-        icon="mdi-truck-delivery-outline"
+        icon="mdi-tune"
         color="amber-darken-2"
         class="me-2"
       />
@@ -12,7 +12,7 @@
         <v-btn
           color="amber-darken-2"
           variant="flat"
-          prepend-icon="mdi-package-up"
+          prepend-icon="mdi-pencil"
           size="small"
           :to="{name: 'Adjustments/Add'}"
         >

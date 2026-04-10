@@ -12,24 +12,11 @@
         <v-btn
           color="amber-darken-2"
           variant="flat"
-          prepend-icon="mdi-plus"
-          size="small"
-        >
-          Add Product
-        </v-btn>
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
-          prepend-icon="mdi-package-up"
-          size="small"
-        >
-          Restock
-        </v-btn>
-        <v-btn
-          color="amber-darken-2"
-          variant="flat"
           prepend-icon="mdi-pencil"
           size="small"
+          :to="{
+            name: 'Adjustments/Add'
+          }"
         >
           Adjust
         </v-btn>
@@ -51,13 +38,7 @@
             hide-details
             color="amber-darken-2"
             clearable
-            @click:clear="
-              () => {
-                searchEAN = '';
-                fetchInventory();
-              }
-            "
-            @keyup.enter="resetSearch"
+            @update:model-value="resetSearch"
           />
         </v-col>
         <v-col cols="12" md="3">
@@ -71,13 +52,7 @@
             hide-details
             color="amber-darken-2"
             clearable
-            @click:clear="
-              () => {
-                searchName = '';
-                fetchInventory();
-              }
-            "
-            @keyup.enter="resetSearch"
+            @update:model-value="resetSearch"
           />
         </v-col>
         <v-spacer />
