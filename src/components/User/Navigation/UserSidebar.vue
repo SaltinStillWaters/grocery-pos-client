@@ -6,20 +6,6 @@
     color="#0A303C"
     width="260"
   >
-    <v-list-item
-      class="py-4"
-      :prepend-icon="rail ? undefined : 'mdi-store'"
-    >
-      <template v-if="rail" v-slot:prepend>
-        <v-icon color="amber-darken-2">mdi-store</v-icon>
-      </template>
-      <v-list-item-title v-if="!rail" class="text-white font-weight-bold text-subtitle-1">
-        GroceryPOS
-      </v-list-item-title>
-    </v-list-item>
-
-    <v-divider class="opacity-20 mb-2" />
-
     <v-list nav density="comfortable">
 
       <v-list-subheader v-if="!rail" class="text-uppercase text-caption font-weight-bold opacity-50 text-white">

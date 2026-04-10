@@ -4,61 +4,61 @@
     <v-app-bar-title>
       <div class="d-flex align-center ga-2 cursor-pointer" @click="router.push('/')">
         <v-avatar color="primary" variant="tonal" size="36" rounded="lg">
-          <v-icon size="22">mdi-home-city</v-icon>
+          <v-icon size="22">mdi-store</v-icon>
         </v-avatar>
-        <span class="text-h6 font-weight-black text-primary tracking-tight" style="letter-spacing: -0.5px;">EstateVue</span>
+        <span class="text-h6 font-weight-black text-primary tracking-tight" style="letter-spacing: -0.5px;">GroceryPOS</span>
       </div>
     </v-app-bar-title>
 
     <template v-slot:append>
       
-      <div class="d-none d-md-flex align-center ga-3 mr-6">
+      <div class="d-none d-md-flex align-center ga-2 mr-6">
         <v-btn 
           prepend-icon="mdi-cart-plus" 
           color="primary" 
           variant="flat" 
           rounded="pill"
-          class="text-none px-5 font-weight-bold"
+          class="text-none px-6 font-weight-bold mr-2"
           elevation="0"
         >
           Sell
         </v-btn>
         
-        <v-btn 
-          prepend-icon="mdi-plus" 
-          color="primary"
-          variant="tonal" 
-          rounded="pill"
-          class="text-none px-4 font-weight-medium"
-          :to="{
-            name: 'Products/Add'
-          }"
-        >
-          Product
-        </v-btn>
+        <v-tooltip text="Add Product" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn 
+              v-bind="props" 
+              icon="mdi-tag-plus-outline" 
+              color="grey-darken-2"
+              variant="text" 
+              :to="{ name: 'Products/Add' }"
+            ></v-btn>
+          </template>
+        </v-tooltip>
 
-        <v-btn 
-          prepend-icon="mdi-package-variant-closed" 
-          color="grey-darken-2"
-          variant="text" 
-          rounded="pill"
-          class="text-none px-3 font-weight-medium"
-          :to="{
-            name: 'Restocks/Add'
-          }"
-        >
-          Restock
-        </v-btn>
+        <v-tooltip text="Restock Inventory" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn 
+              v-bind="props" 
+              icon="mdi-package-variant-closed" 
+              color="grey-darken-2"
+              variant="text" 
+              :to="{ name: 'Restocks/Add' }"
+            ></v-btn>
+          </template>
+        </v-tooltip>
 
-        <v-btn 
-          prepend-icon="mdi-tune" 
-          color="grey-darken-2"
-          variant="text" 
-          rounded="pill"
-          class="text-none px-3 font-weight-medium"
-        >
-          Adjust
-        </v-btn>
+        <v-tooltip text="Adjust Stock" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn 
+              v-bind="props" 
+              icon="mdi-tune" 
+              color="grey-darken-2"
+              variant="text"
+              :to="{ name: 'Adjustments/Add' }" 
+            ></v-btn>
+          </template>
+        </v-tooltip>
       </div>
 
       <v-menu min-width="240" rounded="xl" :offset="[12, 0]" transition="slide-y-transition">
