@@ -26,7 +26,12 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
-      
+      'no-undef': 'off',
+      'vue/block-lang' : ['error', {
+        script: {
+            lang: 'ts'
+        }
+      }],
       // Vuetify components often trigger this. It's safe to turn off for Vuetify apps.
       'vue/multi-word-component-names': 'off', 
       
