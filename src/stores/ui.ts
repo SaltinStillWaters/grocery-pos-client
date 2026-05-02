@@ -1,6 +1,10 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { SnackbarMessage } from 'vuetify/lib/components/VSnackbarQueue/VSnackbarQueue';
+
+export interface SnackbarMessage {
+    color?: string;
+    text?: string;
+}
 
 export enum Color {
     INFO = 'info',

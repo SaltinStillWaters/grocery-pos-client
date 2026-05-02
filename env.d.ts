@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+export {};
+
 declare module '*.vue' {
     import type { DefineComponent } from 'vue';
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
@@ -15,13 +17,6 @@ declare module '*.png' {
 declare module '*.svg' {
     const src: string;
     export default src;
-}
-
-declare module 'vuetify/lib/components/VSnackbarQueue/VSnackbarQueue' {
-    export interface SnackbarMessage {
-        color?: string;
-        text?: string;
-    }
 }
 
 declare module 'vue-toast-notification' {

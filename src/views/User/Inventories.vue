@@ -103,9 +103,9 @@ const searchEAN = ref('');
 const searchStock = ref();
 
 const headers = ref([
-    { title: 'EAN', align: 'start', sortable: false, key: 'EAN' },
-    { title: 'Name', key: 'name', align: 'start', sortable: false },
-    { title: 'Stock', key: 'stock', align: 'start', sortable: false },
+    { title: 'EAN', align: 'start' as const, sortable: false, key: 'EAN' },
+    { title: 'Name', key: 'name', align: 'start' as const, sortable: false },
+    { title: 'Stock', key: 'stock', align: 'start' as const, sortable: false },
 ]);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
