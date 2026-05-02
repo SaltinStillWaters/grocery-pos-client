@@ -1,8 +1,9 @@
 import { useAuthStore } from '@/stores/auth';
 import { Color, useUIStore } from '@/stores/ui';
 import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
     // GUEST LAYOUT
     {
         path: '/',

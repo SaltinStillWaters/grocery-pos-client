@@ -187,7 +187,7 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import type { VForm } from 'vuetify/components';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo.svg';
 
 const router = useRouter();
 const authStore = useAuthStore();

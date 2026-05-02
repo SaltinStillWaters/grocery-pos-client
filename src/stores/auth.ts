@@ -3,15 +3,23 @@ import { ref, computed } from 'vue';
 import api from '@/axios';
 import router from '@/router';
 
+export interface User {
+    id?: number;
+    username?: string;
+    email?: string;
+    name?: string;
+    [key: string]: unknown;
+}
+
 export const useAuthStore = defineStore('auth', () => {
     const storedUser = localStorage.getItem('user');
 
-    const initialUser =
+    const initialUser: User | null =
         storedUser && storedUser !== 'undefined'
-            ? JSON.parse(storedUser)
+            ? (JSON.parse(storedUser) as User)
             : null;
 
-    const user = ref(initialUser);
+    const user = ref<User | null>(initialUser);
 
     const isAuthenticated = computed(
         () =>
@@ -19,7 +27,10 @@ export const useAuthStore = defineStore('auth', () => {
             document.cookie.split('; ').some((row) => row.startsWith('dummy')),
     );
 
-    const login = async (username, password) => {
+    const login = async (
+        username: string,
+        password: string,
+    ): Promise<unknown> => {
         const response = await api.post('/auth/login', { username, password });
         const data = response.data.data;
         console.log({ data });
@@ -30,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
         return data;
     };
 
-    const logout = async () => {
+    const logout = async (): Promise<void> => {
         try {
             await api.post('/auth/logout');
         } catch (e) {
@@ -43,7 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
-    const fetchMe = async () => {
+    const fetchMe = async (): Promise<User | null> => {
         try {
             const response = await api.get('/auth/profile');
             user.value = response.data.data;

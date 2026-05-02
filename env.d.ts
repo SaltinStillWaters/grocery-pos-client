@@ -17,30 +17,21 @@ declare module '*.svg' {
     export default src;
 }
 
-declare module '@/axios' {
-    import { AxiosInstance } from 'axios';
-    const api: AxiosInstance;
-    export default api;
-}
-
-declare module '@/stores/auth' {
-    export function useAuthStore(): {
-        user: { username?: string; email?: string; name?: string } | null;
-        isAuthenticated: boolean;
-        login: (username: string, password: string) => Promise<unknown>;
-        logout: () => Promise<void>;
-        fetchMe: () => Promise<unknown>;
-    };
-}
-
-declare module '@/utils/version' {
-    const version: string;
-    export default version;
-}
-
 declare module 'vuetify/lib/components/VSnackbarQueue/VSnackbarQueue' {
     export interface SnackbarMessage {
         color?: string;
         text?: string;
+    }
+}
+
+declare module 'vue-toast-notification' {
+    import type { Plugin } from 'vue';
+    const Toast: Plugin;
+    export default Toast;
+}
+
+declare module 'vue' {
+    export interface ComponentCustomProperties {
+        $axios: import('axios').AxiosInstance;
     }
 }

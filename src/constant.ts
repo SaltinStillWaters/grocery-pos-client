@@ -1,4 +1,19 @@
-export default {
+export interface AppConstant {
+    main_site: string;
+    apiv1: string;
+    apiv1_ip: string;
+    timeout: number;
+    login: string;
+    logout: string;
+    refresh: string;
+    me: string;
+    readonly bearer_token: string;
+    readonly headers: Record<string, string>;
+    headers_tokenless: Record<string, string>;
+    api_status: string;
+}
+
+const constant: AppConstant = {
     main_site: 'http://localhost:3000',
 
     apiv1: 'http://localhost:3000',
@@ -30,3 +45,5 @@ export default {
 
     api_status: '/api-status',
 };
+
+export default constant;

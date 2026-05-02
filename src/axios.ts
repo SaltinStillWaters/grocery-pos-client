@@ -1,7 +1,12 @@
-import axios from 'axios';
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import constant from '@/constant';
 import { useAuthStore } from './stores/auth';
 import { Color, useUIStore } from './stores/ui';
+
+interface QueuePromise {
+    resolve: (value?: unknown) => void;
+    reject: (reason?: unknown) => void;
+}
 
 const api = axios.create({
     baseURL: constant.apiv1,
@@ -14,9 +19,9 @@ const api = axios.create({
 
 let isSessionDialogShown = false;
 let isRefreshing = false;
-let failedQueue = [];
+let failedQueue: QueuePromise[] = [];
 
-const processQueue = (error) => {
+const processQueue = (error: AxiosError | null) => {
     failedQueue.forEach((prom) => {
         if (error) {
             prom.reject(error);
@@ -28,7 +33,7 @@ const processQueue = (error) => {
     failedQueue = [];
 };
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     if (config.data instanceof FormData) {
         delete config.headers['Content-Type'];
     } else {
@@ -41,8 +46,10 @@ api.interceptors.request.use((config) => {
 // RESPONSE interceptor with intelligent refresh token logic
 api.interceptors.response.use(
     (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & {
+            _retry?: boolean;
+        };
         console.log({ error });
         // Check if error is 401 and we haven't tried to refresh yet
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -90,7 +97,7 @@ api.interceptors.response.use(
             } catch (refreshError) {
                 console.error('Token refresh failed:', refreshError);
 
-                processQueue(refreshError);
+                processQueue(refreshError as AxiosError);
                 isRefreshing = false;
 
                 if (!isSessionDialogShown) {
