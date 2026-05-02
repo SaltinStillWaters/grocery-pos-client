@@ -379,8 +379,8 @@ const result = await api.get('/products', {
   }
 })
 
-serverItems.value = result.data.data.data
-totalItems.value = result.data.data.totalItems
+serverItems.value = result.data.data
+totalItems.value = result.data.totalItems
 ```
 
 **Posting data:**
@@ -717,7 +717,7 @@ uiStore.queueMessage(Color.SUCCESS, "It worked!")
 ```javascript
 import api from '@/axios'
 const result = await api.get('/products', { params: { page: 1 } })
-const data = result.data.data.data
+const data = result.data.data
 ```
 
 ### Navigate Somewhere

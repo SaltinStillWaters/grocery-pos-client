@@ -212,7 +212,7 @@ async function fetchDetails() {
     });
 
     console.log({ result });
-    serverItems.value = result.data.data.data.map(
+    serverItems.value = result.data.data.map(
         (details: {
             id: string | number;
             product?: { name: string };
@@ -229,7 +229,7 @@ async function fetchDetails() {
         },
     );
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     console.log(totalItems.value);
     loading.value = false;
 }

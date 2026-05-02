@@ -135,7 +135,7 @@ async function fetchInventory() {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = result.data.data.data.map((inventory: any) => {
+    const data = result.data.data.map((inventory: any) => {
         return {
             id: inventory.product._id,
             EAN: inventory.product.EAN,
@@ -151,7 +151,7 @@ async function fetchInventory() {
 
     serverItems.value = data;
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     loading.value = false;
 }
 </script>

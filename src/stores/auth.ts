@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
         password: string,
     ): Promise<unknown> => {
         const response = await api.post('/auth/login', { username, password });
-        const data = response.data.data;
+        const data = response.data;
         console.log({ data });
         user.value = data.user;
 
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
     const fetchMe = async (): Promise<User | null> => {
         try {
             const response = await api.get('/auth/profile');
-            user.value = response.data.data;
+            user.value = response.data;
             console.log(user.value);
             localStorage.setItem('user', JSON.stringify(user.value));
             return user.value;

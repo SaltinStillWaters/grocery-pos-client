@@ -205,7 +205,7 @@ async function fetchDetails() {
 
     console.log({ result });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serverItems.value = result.data.data.data.map((details: any) => {
+    serverItems.value = result.data.data.map((details: any) => {
         return {
             id: details.id,
             name: details.product?.name,
@@ -214,7 +214,7 @@ async function fetchDetails() {
         };
     });
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     console.log(totalItems.value);
     loading.value = false;
 }

@@ -149,7 +149,7 @@ const userOptions = ref<Array<{ title: string; value: string }>>([]);
 const fetchUserOptions = async () => {
     const result = await api.get('/adjustments/users');
 
-    userOptions.value = result.data.data.map(
+    userOptions.value = result.data.map(
         ({ _id, name }: { _id: string; name: string }) => ({
             title: name,
             value: _id,
@@ -207,7 +207,7 @@ async function fetchAdjust() {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serverItems.value = result.data.data.data.map((adjust: any) => {
+    serverItems.value = result.data.data.map((adjust: any) => {
         return {
             id: adjust._id,
             description: adjust.description,
@@ -223,7 +223,7 @@ async function fetchAdjust() {
         };
     });
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     loading.value = false;
 }
 

@@ -198,7 +198,7 @@ async function search(querySearch: string) {
         params: query,
     });
 
-    matchedProducts.value = result.data.data;
+    matchedProducts.value = result.data;
     isLoadingMatches.value = false;
 }
 </script>

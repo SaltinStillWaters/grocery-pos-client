@@ -131,7 +131,7 @@ async function fetchProducts() {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serverItems.value = result.data.data.data.map((product: any) => {
+    serverItems.value = result.data.data.map((product: any) => {
         return {
             id: product._id,
             EAN: product.EAN,
@@ -140,7 +140,7 @@ async function fetchProducts() {
         };
     });
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     loading.value = false;
 }
 </script>

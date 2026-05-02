@@ -164,7 +164,7 @@ const userOptions = ref<Array<{ title: string; value: string }>>([]);
 const fetchUserOptions = async () => {
     const result = await api.get('/restocks/users');
 
-    userOptions.value = result.data.data.map(
+    userOptions.value = result.data.map(
         ({ _id, name }: { _id: string; name: string }) => ({
             title: name,
             value: _id,
@@ -222,7 +222,7 @@ async function fetchRestock() {
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    serverItems.value = result.data.data.data.map((restock: any) => {
+    serverItems.value = result.data.data.map((restock: any) => {
         return {
             id: restock._id,
             description: restock.description,
@@ -239,7 +239,7 @@ async function fetchRestock() {
         };
     });
 
-    totalItems.value = result.data.data.totalItems;
+    totalItems.value = result.data.totalItems;
     loading.value = false;
 }
 
