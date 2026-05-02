@@ -1,10 +1,10 @@
 <template>
-  <RouterView />
-  <Toast />
+    <RouterView />
+    <Toast />
 </template>
 
-<script setup>
-import { RouterView } from 'vue-router'
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
 import Toast from './components/Toast.vue';
 </script>
 
@@ -15,11 +15,11 @@ import Toast from './components/Toast.vue';
 */
 
 :root {
-  --v-font-family: 'Poppins', sans-serif;
+    --v-font-family: 'Poppins', sans-serif;
 }
 
 body,
 .v-application {
-  font-family: 'Poppins', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 </style>

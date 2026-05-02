@@ -5,17 +5,16 @@
  */
 
 // Plugins
-import { registerPlugins } from '@/plugins'
-import axios from '@/axios'
+import { registerPlugins } from '@/plugins';
+import axios from '@/axios';
 import 'vuetify/styles';
 
 // Composables
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 // Components
-import App from './App.vue'
-import { Color, useUIStore } from './stores/ui';
+import App from './App.vue';
 
 // window.addEventListener('unhandledrejection', (event) => {
 //     const error = event.reason
@@ -26,12 +25,12 @@ import { Color, useUIStore } from './stores/ui';
 //     uiStore.queueMessage(Color.ERROR, '')
 // })
 
-const app = createApp(App)
+const app = createApp(App);
 app.use(createPinia());
 
-registerPlugins(app)
+registerPlugins(app);
 
 // Add Axios to the global properties
-app.config.globalProperties.$axios = axios
+app.config.globalProperties.$axios = axios;
 
-app.mount('#app')
+app.mount('#app');

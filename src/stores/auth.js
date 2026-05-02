@@ -1,55 +1,61 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import api from '@/axios'
-import router from '@/router'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import api from '@/axios';
+import router from '@/router';
 
 export const useAuthStore = defineStore('auth', () => {
-  const storedUser = localStorage.getItem('user')
-  
-  const initialUser = (storedUser && storedUser !== 'undefined') 
-    ? JSON.parse(storedUser) 
-    : null
-    
-  const user = ref(initialUser)
+    const storedUser = localStorage.getItem('user');
 
-  const isAuthenticated = computed(() => !!user.value && document.cookie.split('; ').some(row => row.startsWith('dummy')))
+    const initialUser =
+        storedUser && storedUser !== 'undefined'
+            ? JSON.parse(storedUser)
+            : null;
 
-  const login = async (username, password) => {
-    const response = await api.post('/auth/login', { username, password })
-    const data = response.data.data
-    console.log({data})
-    user.value = data.user
+    const user = ref(initialUser);
 
-    localStorage.setItem('user', JSON.stringify(data.user))
+    const isAuthenticated = computed(
+        () =>
+            !!user.value &&
+            document.cookie.split('; ').some((row) => row.startsWith('dummy')),
+    );
 
-    return data
-  }
+    const login = async (username, password) => {
+        const response = await api.post('/auth/login', { username, password });
+        const data = response.data.data;
+        console.log({ data });
+        user.value = data.user;
 
-  const logout = async () => {
-    try {
-      await api.post('/auth/logout')
-    } catch (e) {
-      // silent fail - still clear local state
-    } finally {
-      user.value = null
-      localStorage.removeItem('user')
-      router.push({ name: 'Login' })
-    }
-  }
+        localStorage.setItem('user', JSON.stringify(data.user));
 
-  const fetchMe = async () => {
-    try {
-      const response = await api.get('/auth/profile')
-      user.value = response.data.data
-      console.log(user.value)
-      localStorage.setItem('user', JSON.stringify(user.value))
-      return user.value
-    } catch (err) {
-      user.value = null
-      localStorage.removeItem('user')
-      throw err
-    }
-  }
+        return data;
+    };
 
-  return { user, isAuthenticated, login, logout, fetchMe }
-})
+    const logout = async () => {
+        try {
+            await api.post('/auth/logout');
+        } catch (e) {
+            console.log(e);
+            // silent fail - still clear local state
+        } finally {
+            user.value = null;
+            localStorage.removeItem('user');
+            router.push({ name: 'Login' });
+        }
+    };
+
+    const fetchMe = async () => {
+        try {
+            const response = await api.get('/auth/profile');
+            user.value = response.data.data;
+            console.log(user.value);
+            localStorage.setItem('user', JSON.stringify(user.value));
+            return user.value;
+        } catch (err) {
+            user.value = null;
+            localStorage.removeItem('user');
+            throw err;
+        }
+    };
+
+    return { user, isAuthenticated, login, logout, fetchMe };
+});
