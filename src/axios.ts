@@ -2,6 +2,7 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import constant from '@/constant';
 import { useAuthStore } from './stores/auth';
 import { Color, useUIStore } from './stores/ui';
+import { env } from './config/env';
 
 interface QueuePromise {
     resolve: (value?: unknown) => void;
@@ -9,8 +10,8 @@ interface QueuePromise {
 }
 
 const api = axios.create({
-    baseURL: constant.apiv1,
-    timeout: constant.timeout,
+    baseURL: env.VITE_API_URL,
+    timeout: env.VITE_API_TIMEOUT,
     headers: {
         Accept: 'application/json',
     },
@@ -72,7 +73,7 @@ api.interceptors.response.use(
             try {
                 // Call refresh endpoint
                 const response = await axios.post(
-                    `${constant.apiv1}${constant.refresh}`,
+                    `${env.VITE_API_URL}${constant.refresh}`,
                     {},
                     {
                         withCredentials: true, // Send cookies with refresh token
