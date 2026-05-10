@@ -1,42 +1,41 @@
 name: CI Pipeline
 
-# 1. When should this run?
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: [ "main", "dev" ]
   pull_request:
 
-# 2. What should it do?
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step A: Clone your code into the virtual machine
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step B: Install Node.js
+      # 1. NEW: Install pnpm first
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Put your local pnpm version here (e.g., 8 or 9)
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use the Node version your project requires
-          cache: 'npm'       # Speeds up future runs by caching dependencies
+          node-version: '22.x'
+          cache: 'pnpm' # 2. NEW: Tell GitHub to cache pnpm modules instead of npm
 
-      # Step C: Install Dependencies (npm ci is safer than npm install for CI)
+      # 3. NEW: Use pnpm install with the frozen lockfile flag
       - name: Install Dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      # Step D: Run your linter (Optional, but highly recommended)
+      # 4. NEW: Execute scripts using pnpm
       - name: Lint Code
-        run: npm run lint
+        run: pnpm run lint
 
-      # Step E: Build the app to ensure no TypeScript/Zod errors
       - name: Build Application
-        run: npm run build
+        run: pnpm run build
         env:
-          # CRITICAL: Because of our strict Zod schema, Vite will refuse 
-          # to build if these are missing. We provide dummy variables just for CI.
           VITE_NODE_ENV: prod
           VITE_API_URL: https://api.ci-test.com
           VITE_DOMAIN: ci-test.com
